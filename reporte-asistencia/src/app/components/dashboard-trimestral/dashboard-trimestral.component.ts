@@ -3,6 +3,7 @@ import { AsistenciaService } from '../../services/asistencia.service';
 import { ReporteTrimestral } from '../../models/asistencia.model';
 import html2canvas from 'html2canvas';
 import { Chart, registerables } from 'chart.js';
+import { Router } from '@angular/router';
 
 Chart.register(...registerables);
 
@@ -38,7 +39,16 @@ export class DashboardTrimestralComponent implements OnInit {
     { key: 'Barrio Tigre', label: 'Barrio Tigre', color: '#8b5cf6' }
   ];
 
-  constructor(private asistenciaService: AsistenciaService) { }
+  constructor(private asistenciaService: AsistenciaService, private router: Router) {}
+
+  async cerrarSesion() {
+    try {
+      await this.asistenciaService.logout();
+      this.router.navigate(['/login']);
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
+  }
 
   async ngOnInit() {
     await this.cargarReporteTrimestral();

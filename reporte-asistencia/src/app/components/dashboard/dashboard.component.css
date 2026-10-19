@@ -7,11 +7,18 @@
   color: #1e293b;
 }
 
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
 .top-nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1000px;
+  max-width: 1150px; /* 👈 Espacio ampliado para que todo quepa en 1 línea */
   margin: 0 auto 24px auto;
 }
 
@@ -59,17 +66,21 @@
   box-shadow: 0 0 0 4px rgba(0, 131, 143, 0.18);
 }
 
+/* ==========================================
+   NAVEGACIÓN Y BOTONES UNIFICADOS
+   ========================================== */
 .nav-actions {
   display: flex;
-  gap: 12px;
+  gap: 10px; /* 👈 Gap reducido ligeramente */
   align-items: center;
+  flex-wrap: wrap; 
 }
 
+/* Colores individuales */
 .btn-export {
   background: linear-gradient(135deg, #475569, #334155);
   color: #ffffff;
   border: none;
-  padding: 12px 18px;
   border-radius: 12px;
   font-weight: 700;
   font-size: 15px;
@@ -92,7 +103,6 @@
 .btn-primary {
   background: linear-gradient(135deg, #2e7d32, #1b5e20);
   color: #ffffff;
-  padding: 12px 20px;
   border-radius: 12px;
   text-decoration: none;
   font-weight: 700;
@@ -110,7 +120,6 @@
 .btn-secondary {
   background: linear-gradient(135deg, #00838f, #005b60);
   color: #ffffff;
-  padding: 12px 20px;
   border-radius: 12px;
   text-decoration: none;
   font-weight: 700;
@@ -125,6 +134,43 @@
   background: linear-gradient(135deg, #0097a7, #00695c);
 }
 
+.btn-logout {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+  transition: all 0.25s ease;
+}
+
+.btn-logout:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.35);
+  background: linear-gradient(135deg, #f87171, #ef4444);
+}
+
+/* Reglas estrictas de tamaño y alineación para TODOS los botones */
+.btn-export, 
+.btn-primary, 
+.btn-secondary, 
+.btn-logout {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important; /* 👈 Reducido para ahorrar espacio */
+  height: 44px !important; 
+  padding: 0 12px !important; /* 👈 Padding reducido para que quepan todos */
+  white-space: nowrap !important; 
+  flex-shrink: 0 !important; 
+  box-sizing: border-box !important;
+}
+
+/* ==========================================
+   TARJETAS Y ESTADÍSTICAS
+   ========================================== */
 .dashboard-card {
   max-width: 1000px;
   margin: 0 auto;
@@ -231,6 +277,14 @@
   font-size: 32px;
 }
 
+.badge-dif.badge-negative {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* ==========================================
+   TABLAS DE ACTIVIDADES
+   ========================================== */
 .activities-table {
   width: 100%;
   border-collapse: separate;
@@ -272,6 +326,9 @@
   font-size: 20px;
 }
 
+/* ==========================================
+   GRID DE COLUMNAS POR BARRIO
+   ========================================== */
 .columns-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -357,11 +414,9 @@
   font-weight: 800;
 }
 
-.badge-dif.badge-negative {
-  background: #fef2f2;
-  color: #dc2626;
-}
-
+/* ==========================================
+   ETIQUETAS Y BARRAS DE PROGRESO
+   ========================================== */
 .unit-cell {
   padding: 8px 12px !important;
   text-align: left;

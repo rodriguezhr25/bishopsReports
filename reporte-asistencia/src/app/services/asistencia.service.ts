@@ -1,24 +1,58 @@
 import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
-import { 
-  RegistroDomingo, 
-  DetalleBarrio, 
-  ReporteTrimestral, 
-  PromedioMensual, 
+import {
+  RegistroDomingo,
+  DetalleBarrio,
+  ReporteTrimestral,
+  PromedioMensual,
   AsistenciaSemanalBarrio,
-  ResumenBarrioTrimestral, 
-  getRangoTrimestre 
+  ResumenBarrioTrimestral,
+  getRangoTrimestre
 } from '../models/asistencia.model';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AsistenciaService {
   private supabase: SupabaseClient;
+  // Bóveda en memoria que Angular nunca olvidará al navegar
+  private currentUser = new BehaviorSubject<any>(null);
 
   constructor() {
     this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
+
+    // 1. Al inicializar la app, leemos la sesión de Supabase y la guardamos en la bóveda
+    const session = this.supabase.auth.session();
+    this.currentUser.next(session ? session.user : null);
+
+    // 2. Si Supabase hace algo en segundo plano, actualizamos la bóveda
+    this.supabase.auth.onAuthStateChange((_event, session) => {
+      this.currentUser.next(session ? session.user : null);
+    });
+  }
+
+  // Ahora el Guard leerá instantáneamente de la bóveda, sin esperar a Supabase
+  async getUsuarioActual(): Promise<any> {
+    return this.currentUser.value;
+  }
+
+  async login(email: string, password: string) {
+    const { user, session, error } = await this.supabase.auth.signIn({
+      email,
+      password
+    });
+    if (error) throw error;
+    
+    // Al hacer login, forzamos la actualización de la bóveda
+    this.currentUser.next(user);
+    return { user, session };
+  }
+
+  async logout() {
+    await this.supabase.auth.signOut();
+    this.currentUser.next(null); // Vaciamos la bóveda al salir
   }
 
   async getFechasRegistradas(): Promise<string[]> {

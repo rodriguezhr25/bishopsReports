@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AsistenciaService } from '../../services/asistencia.service';
 import { RegistroDomingo } from '../../models/asistencia.model';
 import html2canvas from 'html2canvas';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
@@ -17,11 +18,20 @@ export class DashboardComponent implements OnInit {
   promedioTrimestral: number = 0;
   semanasContabilizadas: number = 0;
 
-  constructor(private asistenciaService: AsistenciaService) {}
+  constructor(private asistenciaService: AsistenciaService, private router: Router) {}
 
   async ngOnInit() {
     await this.cargarFechas();
     await this.cargarDatos();
+  }
+
+  async cerrarSesion() {
+    try {
+      await this.asistenciaService.logout();
+      this.router.navigate(['/login']);
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
   }
 
   async cargarFechas() {

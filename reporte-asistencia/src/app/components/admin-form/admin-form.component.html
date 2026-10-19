@@ -1,7 +1,7 @@
 <div class="form-container">
   <div class="form-header">
     <h2>{{ esEdicion ? 'Editar Registro Dominical' : 'Nuevo Registro Dominical' }}</h2>
-    <a routerLink="/" class="btn-cancel">Volver al Dashboard</a>
+    <a routerLink="/dashboard" class="btn-cancel">Volver al Dashboard</a>
   </div>
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
