@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@angular/router": "^10.2.4",
+    "@supabase/supabase-js": "^2.2.0"
+  }
+}

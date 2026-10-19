@@ -1,0 +1,182 @@
+<div class="top-nav">
+  <div class="selector-container">
+    <label>Año:</label>
+    <select [(ngModel)]="anioSeleccionado" (change)="cargarReporteTrimestral()">
+      <option *ngFor="let a of aniosDisponibles" [value]="a">{{ a }}</option>
+    </select>
+
+    <label>Trimestre:</label>
+    <select [(ngModel)]="trimestreSeleccionado" (change)="cargarReporteTrimestral()">
+      <option *ngFor="let t of trimestres" [value]="t.num">{{ t.label }}</option>
+    </select>
+  </div>
+
+  <div class="nav-actions">
+    <button (click)="exportarAImagen()" [disabled]="exportando || !reporte || reporte.semanas_registradas === 0"
+      class="btn-export">
+      {{ exportando ? 'Generando...' : '📷 Exportar Imagen' }}
+    </button>
+    <a routerLink="/" class="btn-secondary">Ver Semanal</a>
+  </div>
+</div>
+
+<div class="empty-card" *ngIf="!cargando && (!reporte || reporte.semanas_registradas === 0)">
+  <h3>Sin Registros</h3>
+  <p>No se encontraron semanas activas registradas para el <strong>T{{ trimestreSeleccionado }} de {{ anioSeleccionado
+      }}</strong>.</p>
+</div>
+
+<div id="dashboard-trimestral-export" class="dashboard-card"
+  *ngIf="!cargando && reporte && reporte.semanas_registradas > 0">
+  <div class="header">
+    <div class="title">
+      <h1>Estaca El Tigre</h1>
+      <h2>Resumen Trimestral</h2>
+    </div>
+    <div class="date-badge">T{{ reporte.trimestre }} - {{ reporte.anio }}</div>
+  </div>
+
+  <div class="top-stats">
+    <div class="stat-box">
+      <h4>Semanas Evaluadas</h4>
+      <div class="num gray">{{ reporte.semanas_registradas }}</div>
+    </div>
+    <div class="stat-box">
+      <h4>Promedio Asistencia Estaca</h4>
+      <div class="num" [class.val-positive]="reporte.diferencia_promedio_estaca >= 0"
+        [class.val-negative]="reporte.diferencia_promedio_estaca < 0">
+        {{ reporte.asistencia_promedio_estaca }}
+      </div>
+    </div>
+    <div class="stat-box">
+      <h4>Diferencia vs Trimestre Anterior</h4>
+      <div class="num">
+        <span class="badge-dif" [class.badge-negative]="reporte.diferencia_promedio_estaca < 0">
+          {{ reporte.diferencia_promedio_estaca > 0 ? '+' : '' }}{{ reporte.diferencia_promedio_estaca }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <h3>Asistencia Promedio Mensual (Estaca)</h3>
+  <div class="monthly-grid">
+    <div class="monthly-card" *ngFor="let m of reporte.promedios_mensuales">
+      <h4>{{ m.mesNombre }}</h4>
+      <div class="month-num">{{ m.promedioAsistencia }}</div>
+      <small>{{ m.semanasActivas }} domingo(s) registrado(s)</small>
+    </div>
+  </div>
+
+  <!-- Secciones previas: Header, Top Stats, Consolidado Mensual... -->
+
+  <h3>Tendencia General de Asistencia (Estaca)</h3>
+  <div class="chart-container-main">
+    <canvas #chartEstacaCanvas></canvas>
+  </div>
+
+  <h3>Tendencias por Barrio</h3>
+  <div class="barrios-charts-grid">
+    <div class="chart-card-barrio" *ngFor="let b of barriosInfo">
+      <div class="chart-container-barrio">
+        <canvas [id]="'chart-' + b.key"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tablas siguientes: Detalle Semanal, Actividades, Desglose... -->
+
+  <h3>Detalle de Asistencia Semanal por Barrio</h3>
+  <div class="weekly-table-container">
+    <table class="activities-table weekly-table">
+      <thead>
+        <tr>
+          <th>Mes</th>
+          <th>Fecha</th>
+          <th>Anaco</th>
+          <th>Cantaura</th>
+          <th>Pariaguán</th>
+          <th>Tigrito</th>
+          <th>Tigre</th>
+          <th>Total Estaca</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let s of reporte.asistencias_semanales">
+          <td><strong>{{ s.mesNombre }}</strong></td>
+          <td><span class="date-tag">{{ s.semanaEtiqueta }}</span></td>
+          <td>{{ s.asistenciasPorBarrio['Barrio Anaco'] }}</td>
+          <td>{{ s.asistenciasPorBarrio['Barrio Cantaura'] }}</td>
+          <td>{{ s.asistenciasPorBarrio['Barrio Pariaguán'] }}</td>
+          <td>{{ s.asistenciasPorBarrio['Barrio Tigrito'] }}</td>
+          <td>{{ s.asistenciasPorBarrio['Barrio Tigre'] }}</td>
+          <td><strong>{{ s.totalEstaca }}</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Cumplimiento Acumulado de Actividades y Reuniones</h3>
+  <table class="activities-table">
+    <thead>
+      <tr>
+        <th>Barrio</th>
+        <th>Diáconos</th>
+        <th>Maestros</th>
+        <th>Presbíteros</th>
+        <th>Act. HHJJ</th>
+        <th>Act. MMJJ</th>
+        <th>Reu. Clas. MMJJ</th>
+        <th>Cumplimiento Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let b of reporte.detalles_barrios">
+        <td class="unit-cell">
+          <span class="unit-tag" [class.bg-full]="b.porcentaje_cumplimiento_actividades >= 80"
+            [class.bg-medium]="b.porcentaje_cumplimiento_actividades >= 50 && b.porcentaje_cumplimiento_actividades < 80"
+            [class.bg-low]="b.porcentaje_cumplimiento_actividades < 50">
+            {{ b.barrio_nombre }}
+          </span>
+        </td>
+        <td>{{ b.diaconos_cumplimiento }}/{{ reporte.semanas_registradas }}</td>
+        <td>{{ b.maestros_cumplimiento }}/{{ reporte.semanas_registradas }}</td>
+        <td>{{ b.presbiteros_cumplimiento }}/{{ reporte.semanas_registradas }}</td>
+        <td>{{ b.act_hhjj_cumplimiento }}/{{ reporte.semanas_registradas }}</td>
+        <td>{{ b.act_mmjj_cumplimiento }}/{{ reporte.semanas_registradas }}</td>
+        <td>{{ b.reu_clas_mmjj_cumplimiento }}/{{ reporte.semanas_registradas }}</td>
+        <td><strong>{{ b.porcentaje_cumplimiento_actividades }}%</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Desglose de Asistencia Promedio por Barrio</h3>
+  <div class="columns-grid">
+    <div class="col-card" *ngFor="let b of reporte.detalles_barrios">
+      <div class="col-header" [class.bg-full]="b.incremento_promedio >= 0" [class.bg-low]="b.incremento_promedio < 0">
+        {{ b.barrio_nombre }}
+      </div>
+      <div class="col-body">
+        <div class="circle-val" [class.border-full]="b.porcentaje_cumplimiento_actividades >= 80"
+          [class.border-medium]="b.porcentaje_cumplimiento_actividades >= 50 && b.porcentaje_cumplimiento_actividades < 80"
+          [class.border-low]="b.porcentaje_cumplimiento_actividades < 50">
+          {{ b.porcentaje_cumplimiento_actividades }}%
+        </div>
+        <p class="avg-text">Cumplimiento Actividades</p>
+      </div>
+      <div class="col-footer">
+        <p>Trimestre Anterior</p>
+        <div class="val">{{ b.asistencia_trimestre_anterior }}</div>
+        <p>Promedio Actual</p>
+        <div class="val" [class.val-positive]="b.incremento_promedio >= 0"
+          [class.val-negative]="b.incremento_promedio < 0">
+          {{ b.promedio_asistencia }}
+        </div>
+        <p>Incremento Promedio</p>
+        <div class="val" [class.val-positive]="b.incremento_promedio > 0"
+          [class.val-negative]="b.incremento_promedio < 0">
+          {{ b.incremento_promedio > 0 ? '+' : '' }}{{ b.incremento_promedio }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

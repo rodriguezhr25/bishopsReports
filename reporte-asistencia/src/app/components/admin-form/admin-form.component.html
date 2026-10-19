@@ -1,0 +1,93 @@
+<div class="form-container">
+  <div class="form-header">
+    <h2>{{ esEdicion ? 'Editar Registro Dominical' : 'Nuevo Registro Dominical' }}</h2>
+    <a routerLink="/" class="btn-cancel">Volver al Dashboard</a>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="card-section">
+      <h3>Datos Generales de la Estaca</h3>
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Fecha Domingo</label>
+          <input type="date" formControlName="fecha">
+        </div>
+
+        <div class="form-field checkbox-field">
+          <label>¿Registra Asistencia Esta Semana?</label>
+          <div class="active-toggle">
+            <input type="checkbox" formControlName="es_semana_activa" id="semanaActivaCheck">
+            <label for="semanaActivaCheck">
+              {{ form.get('es_semana_activa')?.value ? 'Semana Activa' : 'Sin Registro / En Blanco (0)' }}
+            </label>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label>Asistencia Hoy (Total)</label>
+          <input type="number" formControlName="asistencia_total" readonly class="readonly-input">
+        </div>
+
+        <div class="form-field">
+          <label>Trimestre Anterior</label>
+          <input type="number" formControlName="asistencia_trimestre_anterior">
+        </div>
+
+        <div class="form-field">
+          <label>Semana Pasada</label>
+          <input type="number" formControlName="asistencia_semana_pasada">
+        </div>
+
+        <div class="form-field">
+          <label>Diferencia</label>
+          <input type="number" formControlName="diferencia" readonly class="readonly-input">
+        </div>
+      </div>
+    </div>
+
+    <div class="card-section" formArrayName="detalles">
+      <h3>Detalle por Barrio</h3>
+      <div *ngFor="let barrioGroup of detallesFormArray.controls; let i = index" [formGroupName]="i" class="barrio-row">
+        <h4>{{ barrioGroup.get('barrio_nombre')?.value }}</h4>
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Asistencia Hoy</label>
+            <input type="number" formControlName="asistencia_hoy">
+          </div>
+          <div class="form-field">
+            <label>Trimestre Anterior</label>
+            <input type="number" formControlName="asistencia_trimestre_anterior">
+          </div>
+          <div class="form-field">
+            <label>Incremento</label>
+            <input type="number" formControlName="incremento">
+          </div>
+          <div class="form-field">
+            <label>Porcentaje (%)</label>
+            <input type="number" formControlName="porcentaje">
+          </div>
+          <div class="form-field">
+            <label>Promedio</label>
+            <input type="number" formControlName="promedio">
+          </div>
+        </div>
+
+        <div class="checkbox-grid">
+          <label><input type="checkbox" formControlName="diaconos"> Diáconos</label>
+          <label><input type="checkbox" formControlName="maestros"> Maestros</label>
+          <label><input type="checkbox" formControlName="presbiteros"> Presbíteros</label>
+          <label><input type="checkbox" formControlName="act_hhjj"> Act. HHJJ</label>
+          <label><input type="checkbox" formControlName="act_mmjj"> Act. MMJJ</label>
+          <label><input type="checkbox" formControlName="reu_clas_mmjj"> Reu. Clas. MMJJ</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <a routerLink="/" class="btn-cancel">Cancelar</a>
+      <button type="submit" [disabled]="form.invalid || guardando" class="btn-save">
+        {{ guardando ? 'Guardando...' : 'Guardar Registro' }}
+      </button>
+    </div>
+  </form>
+</div>
