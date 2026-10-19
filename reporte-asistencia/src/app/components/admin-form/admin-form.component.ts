@@ -128,7 +128,7 @@ export class AdminFormComponent implements OnInit {
         }, { emitEvent: false });
 
         const barriosExistentes = registroExistente.detalle_barrios || [];
-        
+
         // Asegurar que existan los grupos de barrios cargados
         if (this.detallesFormArray.length === 0) {
           this.inicializarBarrios();
@@ -230,7 +230,7 @@ export class AdminFormComponent implements OnInit {
     try {
       const { detalles, ...registro } = this.form.value;
       await this.asistenciaService.guardarReporteDominical(registro, detalles);
-      this.router.navigate(['/']);
+      this.router.navigate(['/dashboard']);
     } catch (e) {
       console.error('Error al guardar:', e);
       alert('Error al guardar o actualizar el registro.');
