@@ -13,15 +13,17 @@
 
   <!-- TODOS los botones deben ir dentro de este nav-actions -->
   <div class="nav-actions">
-    <button (click)="exportarAImagen()" [disabled]="exportando || !reporte || reporte.semanas_registradas === 0" class="btn-export">
+    <button (click)="exportarAImagen()" [disabled]="exportando || !reporte || reporte.semanas_registradas === 0"
+      class="btn-export">
       {{ exportando ? 'Generando...' : '📷 Exportar Imagen' }}
     </button>
-    
+
     <a routerLink="/dashboard" class="btn-secondary">Ver Semanal</a>
 
     <!-- Botón Salir integrado al grupo -->
     <button (click)="cerrarSesion()" class="btn-logout" title="Cerrar Sesión">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
         <polyline points="16 17 21 12 16 7"></polyline>
         <line x1="21" y1="12" x2="9" y2="12"></line>
@@ -97,7 +99,7 @@
   <!-- Tablas siguientes: Detalle Semanal, Actividades, Desglose... -->
 
   <h3>Detalle de Asistencia Semanal por Barrio</h3>
-  <div class="weekly-table-container">
+  <div class="weekly-table-container table-responsive">
     <table class="activities-table weekly-table">
       <thead>
         <tr>
@@ -127,39 +129,40 @@
   </div>
 
   <h3>Cumplimiento Acumulado de Actividades y Reuniones</h3>
-  <table class="activities-table">
-    <thead>
-      <tr>
-        <th>Barrio</th>
-        <th>Diáconos</th>
-        <th>Maestros</th>
-        <th>Presbíteros</th>
-        <th>Act. HHJJ</th>
-        <th>Act. MMJJ</th>
-        <th>Reu. Clas. MMJJ</th>
-        <th>Cumplimiento Total</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let b of reporte.detalles_barrios">
-        <td class="unit-cell">
-          <span class="unit-tag" [class.bg-full]="b.porcentaje_cumplimiento_actividades >= 80"
-            [class.bg-medium]="b.porcentaje_cumplimiento_actividades >= 50 && b.porcentaje_cumplimiento_actividades < 80"
-            [class.bg-low]="b.porcentaje_cumplimiento_actividades < 50">
-            {{ b.barrio_nombre }}
-          </span>
-        </td>
-        <td>{{ b.diaconos_cumplimiento }}/{{ reporte.semanas_registradas }}</td>
-        <td>{{ b.maestros_cumplimiento }}/{{ reporte.semanas_registradas }}</td>
-        <td>{{ b.presbiteros_cumplimiento }}/{{ reporte.semanas_registradas }}</td>
-        <td>{{ b.act_hhjj_cumplimiento }}/{{ reporte.semanas_registradas }}</td>
-        <td>{{ b.act_mmjj_cumplimiento }}/{{ reporte.semanas_registradas }}</td>
-        <td>{{ b.reu_clas_mmjj_cumplimiento }}/{{ reporte.semanas_registradas }}</td>
-        <td><strong>{{ b.porcentaje_cumplimiento_actividades }}%</strong></td>
-      </tr>
-    </tbody>
-  </table>
-
+  <div class="table-responsive"> <!-- 👈 Agrega esto -->
+    <table class="activities-table">
+      <thead>
+        <tr>
+          <th>Barrio</th>
+          <th>Diáconos</th>
+          <th>Maestros</th>
+          <th>Presbíteros</th>
+          <th>Act. HHJJ</th>
+          <th>Act. MMJJ</th>
+          <th>Reu. Clas. MMJJ</th>
+          <th>Cumplimiento Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let b of reporte.detalles_barrios">
+          <td class="unit-cell">
+            <span class="unit-tag" [class.bg-full]="b.porcentaje_cumplimiento_actividades >= 80"
+              [class.bg-medium]="b.porcentaje_cumplimiento_actividades >= 50 && b.porcentaje_cumplimiento_actividades < 80"
+              [class.bg-low]="b.porcentaje_cumplimiento_actividades < 50">
+              {{ b.barrio_nombre }}
+            </span>
+          </td>
+          <td>{{ b.diaconos_cumplimiento }}/{{ reporte.semanas_registradas }}</td>
+          <td>{{ b.maestros_cumplimiento }}/{{ reporte.semanas_registradas }}</td>
+          <td>{{ b.presbiteros_cumplimiento }}/{{ reporte.semanas_registradas }}</td>
+          <td>{{ b.act_hhjj_cumplimiento }}/{{ reporte.semanas_registradas }}</td>
+          <td>{{ b.act_mmjj_cumplimiento }}/{{ reporte.semanas_registradas }}</td>
+          <td>{{ b.reu_clas_mmjj_cumplimiento }}/{{ reporte.semanas_registradas }}</td>
+          <td><strong>{{ b.porcentaje_cumplimiento_actividades }}%</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div> <!-- 👈 Y cierra el div -->
   <h3>Desglose de Asistencia Promedio por Barrio</h3>
   <div class="columns-grid">
     <div class="col-card" *ngFor="let b of reporte.detalles_barrios">

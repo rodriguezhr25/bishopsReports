@@ -8,7 +8,7 @@
 
   <div class="nav-actions">
     <!-- Enlace al Dashboard Trimestral -->
-  <!-- Agrega el prefijo 'dashboard-' para que coincida con tu ruta -->
+    <!-- Agrega el prefijo 'dashboard-' para que coincida con tu ruta -->
     <a routerLink="/dashboard-trimestral" class="btn-secondary">
       📊 Ver Trimestral
     </a>
@@ -25,7 +25,8 @@
 
     <!-- Botón Salir movido al final de las acciones -->
     <button (click)="cerrarSesion()" class="btn-logout" title="Cerrar Sesión">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
         <polyline points="16 17 21 12 16 7"></polyline>
         <line x1="21" y1="12" x2="9" y2="12"></line>
@@ -49,9 +50,8 @@
       <h4>Asistencia Trimestre Anterior</h4>
       <div class="num gray">{{ reporte.asistencia_trimestre_anterior }}</div>
       <h4 class="mt">Asistencia de hoy</h4>
-      <div class="num" 
-           [class.val-positive]="reporte.asistencia_total >= reporte.asistencia_trimestre_anterior"
-           [class.val-negative]="reporte.asistencia_total < reporte.asistencia_trimestre_anterior">
+      <div class="num" [class.val-positive]="reporte.asistencia_total >= reporte.asistencia_trimestre_anterior"
+        [class.val-negative]="reporte.asistencia_total < reporte.asistencia_trimestre_anterior">
         {{ reporte.asistencia_total }}
       </div>
     </div>
@@ -71,78 +71,74 @@
       <div class="num mt-xl">{{ reporte.asistencia_semana_pasada }}</div>
     </div>
   </div>
-
-  <table class="activities-table">
-    <thead>
-      <tr>
-        <th>Reuniones y Actividades</th>
-        <th>Diáconos</th>
-        <th>Maestros</th>
-        <th>Presbíteros</th>
-        <th>Act. HHJJ</th>
-        <th>Act. MMJJ</th>
-        <th>Reu. Clas. MMJJ</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let b of reporte.detalle_barrios">
-        <td class="unit-cell">
-          <span class="unit-tag" [class.status-full]="getBarrioCumplimiento(b) === 6"
-                                [class.status-medium]="getBarrioCumplimiento(b) >= 4 && getBarrioCumplimiento(b) < 6"
-                                [class.status-low]="getBarrioCumplimiento(b) < 4">
-            {{ b.barrio_nombre }}
-          </span>
-          <div class="progress-bar-bg">
-            <div class="progress-bar-fill" 
-                 [style.width.%]="(getBarrioCumplimiento(b) / 6) * 100"
-                 [class.bg-full]="getBarrioCumplimiento(b) === 6"
-                 [class.bg-medium]="getBarrioCumplimiento(b) >= 4 && getBarrioCumplimiento(b) < 6"
-                 [class.bg-low]="getBarrioCumplimiento(b) < 4">
+  <div class="table-responsive">
+    <table class="activities-table">
+      <thead>
+        <tr>
+          <th>Reuniones y Actividades</th>
+          <th>Diáconos</th>
+          <th>Maestros</th>
+          <th>Presbíteros</th>
+          <th>Act. HHJJ</th>
+          <th>Act. MMJJ</th>
+          <th>Reu. Clas. MMJJ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let b of reporte.detalle_barrios">
+          <td class="unit-cell">
+            <span class="unit-tag" [class.status-full]="getBarrioCumplimiento(b) === 6"
+              [class.status-medium]="getBarrioCumplimiento(b) >= 4 && getBarrioCumplimiento(b) < 6"
+              [class.status-low]="getBarrioCumplimiento(b) < 4">
+              {{ b.barrio_nombre }}
+            </span>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" [style.width.%]="(getBarrioCumplimiento(b) / 6) * 100"
+                [class.bg-full]="getBarrioCumplimiento(b) === 6"
+                [class.bg-medium]="getBarrioCumplimiento(b) >= 4 && getBarrioCumplimiento(b) < 6"
+                [class.bg-low]="getBarrioCumplimiento(b) < 4">
+              </div>
             </div>
-          </div>
-        </td>
-        <td><span [class]="b.diaconos ? 'check' : 'cross'">{{ b.diaconos ? '✔' : '✖' }}</span></td>
-        <td><span [class]="b.maestros ? 'check' : 'cross'">{{ b.maestros ? '✔' : '✖' }}</span></td>
-        <td><span [class]="b.presbiteros ? 'check' : 'cross'">{{ b.presbiteros ? '✔' : '✖' }}</span></td>
-        <td><span [class]="b.act_hhjj ? 'check' : 'cross'">{{ b.act_hhjj ? '✔' : '✖' }}</span></td>
-        <td><span [class]="b.act_mmjj ? 'check' : 'cross'">{{ b.act_mmjj ? '✔' : '✖' }}</span></td>
-        <td><span [class]="b.reu_clas_mmjj ? 'check' : 'cross'">{{ b.reu_clas_mmjj ? '✔' : '✖' }}</span></td>
-      </tr>
-    </tbody>
-  </table>
+          </td>
+          <td><span [class]="b.diaconos ? 'check' : 'cross'">{{ b.diaconos ? '✔' : '✖' }}</span></td>
+          <td><span [class]="b.maestros ? 'check' : 'cross'">{{ b.maestros ? '✔' : '✖' }}</span></td>
+          <td><span [class]="b.presbiteros ? 'check' : 'cross'">{{ b.presbiteros ? '✔' : '✖' }}</span></td>
+          <td><span [class]="b.act_hhjj ? 'check' : 'cross'">{{ b.act_hhjj ? '✔' : '✖' }}</span></td>
+          <td><span [class]="b.act_mmjj ? 'check' : 'cross'">{{ b.act_mmjj ? '✔' : '✖' }}</span></td>
+          <td><span [class]="b.reu_clas_mmjj ? 'check' : 'cross'">{{ b.reu_clas_mmjj ? '✔' : '✖' }}</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-<div class="columns-grid">
-  <div class="col-card" *ngFor="let b of reporte.detalle_barrios">
-    <!-- El encabezado cambia a VERDE si la asistencia mejoró/se mantuvo, o ROJO si cayó -->
-    <div class="col-header" 
-         [class.bg-full]="b.incremento >= 0" 
-         [class.bg-low]="b.incremento < 0">
-      {{ b.barrio_nombre }}
-    </div>
 
-    <div class="col-body">
-      <div class="circle-val">{{ b.porcentaje }}%</div>
-      <p class="avg-text">Promedio - {{ b.promedio }}</p>
-    </div>
-
-    <div class="col-footer">
-      <p>Trimestre anterior</p>
-      <div class="val">{{ b.asistencia_trimestre_anterior }}</div>
-
-      <p>Asistencia de hoy</p>
-      <div class="val" 
-           [class.val-positive]="b.asistencia_hoy >= b.asistencia_trimestre_anterior"
-           [class.val-negative]="b.asistencia_hoy < b.asistencia_trimestre_anterior">
-        {{ b.asistencia_hoy }}
+  <div class="columns-grid">
+    <div class="col-card" *ngFor="let b of reporte.detalle_barrios">
+      <!-- El encabezado cambia a VERDE si la asistencia mejoró/se mantuvo, o ROJO si cayó -->
+      <div class="col-header" [class.bg-full]="b.incremento >= 0" [class.bg-low]="b.incremento < 0">
+        {{ b.barrio_nombre }}
       </div>
 
-      <p>Incremento</p>
-      <div class="val" 
-           [class.val-positive]="b.incremento > 0" 
-           [class.val-negative]="b.incremento < 0">
-        {{ b.incremento }}
+      <div class="col-body">
+        <div class="circle-val">{{ b.porcentaje }}%</div>
+        <p class="avg-text">Promedio - {{ b.promedio }}</p>
+      </div>
+
+      <div class="col-footer">
+        <p>Trimestre anterior</p>
+        <div class="val">{{ b.asistencia_trimestre_anterior }}</div>
+
+        <p>Asistencia de hoy</p>
+        <div class="val" [class.val-positive]="b.asistencia_hoy >= b.asistencia_trimestre_anterior"
+          [class.val-negative]="b.asistencia_hoy < b.asistencia_trimestre_anterior">
+          {{ b.asistencia_hoy }}
+        </div>
+
+        <p>Incremento</p>
+        <div class="val" [class.val-positive]="b.incremento > 0" [class.val-negative]="b.incremento < 0">
+          {{ b.incremento }}
+        </div>
       </div>
     </div>
   </div>
-</div>
 </div>
