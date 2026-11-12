@@ -1,0 +1,192 @@
+<header class="dashboard-header">
+  <h2>Estadísticas: Senda de los Convenios</h2>
+</header>
+
+<div class="top-nav">
+  <div class="selector-container">
+    <p class="subtitle-info">Progreso global de conversos por barrio</p>
+  </div>
+  <div class="nav-actions">
+    <button (click)="exportarAImagen()" [disabled]="exportando" class="btn-export">
+      {{ exportando ? 'Generando...' : '📷 Exportar Imagen' }}
+    </button>
+    <a routerLink="/dashboard" class="btn-export">← Volver al Semanal</a>
+    <a routerLink="/seguimiento" class="btn-primary">📋 Ver Detalles por Persona</a>
+  </div>
+</div>
+
+<div id="dashboard-to-export" class="dashboard-card" *ngIf="!cargando">
+  <div class="header">
+    <div class="title">
+      <h1>Estaca</h1>
+      <h2>El Tigre</h2>
+    </div>
+    <div class="date-badge">Conversos Activos</div>
+  </div>
+
+  <div class="top-stats">
+    <div class="stat-box">
+      <h4>Total Conversos</h4>
+      <div class="num">{{ estacaStats.totalMiembros }}</div>
+    </div>
+    <div class="stat-box">
+      <h4>Hitos Estaca</h4>
+      <div class="num gray">{{ estacaStats.hitosCumplidos }} / {{ estacaStats.hitosPosibles }}</div>
+    </div>
+    <div class="stat-box">
+      <h4>Global Estaca</h4>
+      <div class="num mt-xl">
+        <span class="badge-dif" 
+              [class.badge-full]="estacaStats.porcentaje >= 75"
+              [class.badge-medium]="estacaStats.porcentaje >= 40 && estacaStats.porcentaje < 75"
+              [class.badge-negative]="estacaStats.porcentaje < 40">
+          {{ estacaStats.porcentaje }}%
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- NUEVO: DESGLOSE GLOBAL DE LA ESTACA -->
+  <div class="estaca-breakdown">
+    <h4>Desglose Global de la Estaca</h4>
+   <div class="estaca-hitos-grid">
+      <div class="e-hito-box">
+        <span class="e-name">Post-Bautismal</span>
+        <div class="e-data">
+          <span>{{ estacaStats.desglose.postBautismal.cumplidos }}/{{ estacaStats.desglose.postBautismal.posibles }}</span>
+          <span class="h-pct" [ngClass]="getPctClass(estacaStats.desglose.postBautismal.posibles, estacaStats.desglose.postBautismal.porcentaje)">{{ estacaStats.desglose.postBautismal.porcentaje }}%</span>
+        </div>
+      </div>
+      <div class="e-hito-box">
+        <span class="e-name">Entrevista Templo</span>
+        <div class="e-data">
+          <span>{{ estacaStats.desglose.entrevista.cumplidos }}/{{ estacaStats.desglose.entrevista.posibles }}</span>
+          <span class="h-pct" [ngClass]="getPctClass(estacaStats.desglose.entrevista.posibles, estacaStats.desglose.entrevista.porcentaje)">{{ estacaStats.desglose.entrevista.porcentaje }}%</span>
+        </div>
+      </div>
+      <div class="e-hito-box">
+        <span class="e-name">Recomendación</span>
+        <div class="e-data">
+          <span>{{ estacaStats.desglose.recomendacion.cumplidos }}/{{ estacaStats.desglose.recomendacion.posibles }}</span>
+          <span class="h-pct" [ngClass]="getPctClass(estacaStats.desglose.recomendacion.posibles, estacaStats.desglose.recomendacion.porcentaje)">{{ estacaStats.desglose.recomendacion.porcentaje }}%</span>
+        </div>
+      </div>
+      <div class="e-hito-box">
+        <span class="e-name">S. Aarónico</span>
+        <div class="e-data">
+          <span>{{ estacaStats.desglose.aaronico.cumplidos }}/{{ estacaStats.desglose.aaronico.posibles }}</span>
+          <span class="h-pct" [ngClass]="getPctClass(estacaStats.desglose.aaronico.posibles, estacaStats.desglose.aaronico.porcentaje)">{{ estacaStats.desglose.aaronico.porcentaje }}%</span>
+        </div>
+      </div>
+      <div class="e-hito-box">
+        <span class="e-name">Llamamiento</span>
+        <div class="e-data">
+          <span>{{ estacaStats.desglose.llamamiento.cumplidos }}/{{ estacaStats.desglose.llamamiento.posibles }}</span>
+          <span class="h-pct" [ngClass]="getPctClass(estacaStats.desglose.llamamiento.posibles, estacaStats.desglose.llamamiento.porcentaje)">{{ estacaStats.desglose.llamamiento.porcentaje }}%</span>
+        </div>
+      </div>
+      <div class="e-hito-box">
+        <span class="e-name">S. Melquisedec</span>
+        <div class="e-data">
+          <span>{{ estacaStats.desglose.melquisedec.cumplidos }}/{{ estacaStats.desglose.melquisedec.posibles }}</span>
+          <span class="h-pct" [ngClass]="getPctClass(estacaStats.desglose.melquisedec.posibles, estacaStats.desglose.melquisedec.porcentaje)">{{ estacaStats.desglose.melquisedec.porcentaje }}%</span>
+        </div>
+      </div>
+      <div class="e-hito-box">
+        <span class="e-name">Nombres Templo</span>
+        <div class="e-data">
+          <span>{{ estacaStats.desglose.nombresTemplo.cumplidos }}/{{ estacaStats.desglose.nombresTemplo.posibles }}</span>
+          <span class="h-pct" [ngClass]="getPctClass(estacaStats.desglose.nombresTemplo.posibles, estacaStats.desglose.nombresTemplo.porcentaje)">{{ estacaStats.desglose.nombresTemplo.porcentaje }}%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TARJETAS DE BARRIOS -->
+  <div class="columns-grid">
+    <div class="col-card" *ngFor="let b of estadisticasBarrios">
+      <div class="col-header" [class.bg-full]="b.porcentaje >= 75" [class.bg-medium]="b.porcentaje >= 40 && b.porcentaje < 75" [class.bg-low]="b.porcentaje < 40">
+        {{ b.nombre }}
+      </div>
+
+      <div class="col-body">
+        <div class="circle-val" [class.border-full]="b.porcentaje >= 75" [class.border-medium]="b.porcentaje >= 40 && b.porcentaje < 75" [class.border-low]="b.porcentaje < 40">
+          {{ b.porcentaje }}%
+        </div>
+        <p class="avg-text">{{ b.totalMiembros }} Conversos</p>
+      </div>
+
+    <div class="hitos-breakdown">
+        <div class="hito-row">
+          <span class="h-name">Post-Bautismo</span>
+          <div class="h-data">
+            <span class="h-val">{{ b.desglose.postBautismal.cumplidos }}/{{ b.desglose.postBautismal.posibles }}</span>
+            <span class="h-pct" [ngClass]="getPctClass(b.desglose.postBautismal.posibles, b.desglose.postBautismal.porcentaje)">{{ b.desglose.postBautismal.porcentaje }}%</span>
+          </div>
+        </div>
+        <div class="hito-row">
+          <span class="h-name">Entrevista</span>
+          <div class="h-data">
+            <span class="h-val">{{ b.desglose.entrevista.cumplidos }}/{{ b.desglose.entrevista.posibles }}</span>
+            <span class="h-pct" [ngClass]="getPctClass(b.desglose.entrevista.posibles, b.desglose.entrevista.porcentaje)">{{ b.desglose.entrevista.porcentaje }}%</span>
+          </div>
+        </div>
+        <div class="hito-row">
+          <span class="h-name">Recomendación</span>
+          <div class="h-data">
+            <span class="h-val">{{ b.desglose.recomendacion.cumplidos }}/{{ b.desglose.recomendacion.posibles }}</span>
+            <span class="h-pct" [ngClass]="getPctClass(b.desglose.recomendacion.posibles, b.desglose.recomendacion.porcentaje)">{{ b.desglose.recomendacion.porcentaje }}%</span>
+          </div>
+        </div>
+        <div class="hito-row">
+          <span class="h-name">S. Aarónico</span>
+          <div class="h-data">
+            <span class="h-val">{{ b.desglose.aaronico.cumplidos }}/{{ b.desglose.aaronico.posibles }}</span>
+            <span class="h-pct" [ngClass]="getPctClass(b.desglose.aaronico.posibles, b.desglose.aaronico.porcentaje)">{{ b.desglose.aaronico.porcentaje }}%</span>
+          </div>
+        </div>
+        <div class="hito-row">
+          <span class="h-name">Llamamiento</span>
+          <div class="h-data">
+            <span class="h-val">{{ b.desglose.llamamiento.cumplidos }}/{{ b.desglose.llamamiento.posibles }}</span>
+            <span class="h-pct" [ngClass]="getPctClass(b.desglose.llamamiento.posibles, b.desglose.llamamiento.porcentaje)">{{ b.desglose.llamamiento.porcentaje }}%</span>
+          </div>
+        </div>
+        <div class="hito-row">
+          <span class="h-name">S. Melquise.</span>
+          <div class="h-data">
+            <span class="h-val">{{ b.desglose.melquisedec.cumplidos }}/{{ b.desglose.melquisedec.posibles }}</span>
+            <span class="h-pct" [ngClass]="getPctClass(b.desglose.melquisedec.posibles, b.desglose.melquisedec.porcentaje)">{{ b.desglose.melquisedec.porcentaje }}%</span>
+          </div>
+        </div>
+        <div class="hito-row">
+          <span class="h-name">N. al Templo</span>
+          <div class="h-data">
+            <span class="h-val">{{ b.desglose.nombresTemplo.cumplidos }}/{{ b.desglose.nombresTemplo.posibles }}</span>
+            <span class="h-pct" [ngClass]="getPctClass(b.desglose.nombresTemplo.posibles, b.desglose.nombresTemplo.porcentaje)">{{ b.desglose.nombresTemplo.porcentaje }}%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-footer">
+        <div class="footer-totals">
+          <div class="f-col">
+            <p>Totales Posibles</p>
+            <div class="val">{{ b.hitosPosibles }}</div>
+          </div>
+          <div class="f-col">
+            <p>Logrados</p>
+            <div class="val" [class.val-positive]="b.porcentaje >= 75" [class.val-warning]="b.porcentaje >= 40 && b.porcentaje < 75" [class.val-negative]="b.porcentaje < 40">
+              {{ b.hitosCumplidos }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="cargando" class="empty-card">
+  <h3>Calculando Progreso...</h3>
+  <p>Evaluando hitos y reglas de retención.</p>
+</div>

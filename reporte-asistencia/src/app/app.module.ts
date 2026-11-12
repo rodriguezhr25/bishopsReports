@@ -8,6 +8,8 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { AdminFormComponent } from './components/admin-form/admin-form.component';
 import { DashboardTrimestralComponent } from './components/dashboard-trimestral/dashboard-trimestral.component';
 import { LoginComponent } from './components/login/login.component'; // 👈 Importar
+import { SeguimientoComponent } from './components/seguimiento/seguimiento.component';
+import { DashboardSeguimientoComponent } from './components/dashboard-seguimiento/dashboard-seguimiento.component';
 
 @NgModule({
   declarations: [
@@ -15,7 +17,9 @@ import { LoginComponent } from './components/login/login.component'; // 👈 Imp
     DashboardComponent,
     AdminFormComponent,
     DashboardTrimestralComponent,
-    LoginComponent 
+    LoginComponent,
+    SeguimientoComponent,
+    DashboardSeguimientoComponent
   ],
   imports: [
     BrowserModule,

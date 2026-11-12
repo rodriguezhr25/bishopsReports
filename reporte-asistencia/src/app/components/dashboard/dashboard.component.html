@@ -6,9 +6,13 @@
     </select>
   </div>
 
-  <div class="nav-actions">
+<div class="nav-actions">
+    <!-- NUEVO: Botón al Dashboard de Seguimiento -->
+    <a routerLink="/dashboard-seguimiento" class="btn-primary">
+      🛤️ Seguimiento
+    </a>
+
     <!-- Enlace al Dashboard Trimestral -->
-    <!-- Agrega el prefijo 'dashboard-' para que coincida con tu ruta -->
     <a routerLink="/dashboard-trimestral" class="btn-secondary">
       📊 Ver Trimestral
     </a>
@@ -16,14 +20,16 @@
     <button (click)="exportarAImagen()" [disabled]="exportando" class="btn-export">
       {{ exportando ? 'Generando...' : '📷 Exportar Imagen' }}
     </button>
+    
     <a [routerLink]="['/admin']" [queryParams]="{ fecha: fechaSeleccionada }" class="btn-secondary">
       Editar Datos
     </a>
+    
     <a routerLink="/admin" class="btn-primary">
       + Nuevo Domingo
     </a>
 
-    <!-- Botón Salir movido al final de las acciones -->
+    <!-- Botón Salir -->
     <button (click)="cerrarSesion()" class="btn-logout" title="Cerrar Sesión">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

@@ -1,0 +1,136 @@
+<header class="dashboard-header">
+  <h2>Seguimiento de Miembros (Senda de los Convenios)</h2>
+</header>
+
+<div class="top-nav">
+  <div class="selector-container">
+    <select [(ngModel)]="barrioSeleccionado" (change)="cargarMiembros()">
+      <option *ngFor="let b of barrios" [value]="b">{{ b }}</option>
+    </select>
+  </div>
+
+  <div class="nav-actions">
+    <button (click)="exportarAImagen()" [disabled]="exportando" class="btn-export">
+      {{ exportando ? 'Generando...' : '📷 Exportar Imagen' }}
+    </button>
+    <a routerLink="/dashboard-seguimiento" class="btn-secondary">← Volver a Estadísticas</a>
+  </div>
+</div>
+
+<!-- Cambia esta línea -->
+<div id="lista-to-export" class="dashboard-card">
+  <div class="header-card">
+    <h3>Lista de Conversos - {{ barrioSeleccionado }}</h3>
+    <span class="badge" *ngIf="!cargando">{{ miembros.length }} Registros</span>
+  </div>
+
+  <div *ngIf="cargando" class="loading-state">
+    <p>Cargando miembros...</p>
+  </div>
+
+  <div *ngIf="!cargando && miembros.length === 0" class="empty-state">
+    <p>No hay miembros registrados para este barrio.</p>
+  </div>
+
+  <div *ngIf="!cargando && miembros.length > 0" class="table-responsive">
+    <table class="tracking-table">
+      <thead>
+        <tr>
+          <th class="col-nombre">Nombre Completo</th>
+          <th title="Año de Nacimiento">Año N.</th>
+          <th>Edad</th>
+          <th title="Género">G.</th>
+          <th>Fecha Bautismo</th> <!-- 👈 NUEVA COLUMNA -->
+          <th>Post-Bautismal</th>
+          <th>Entrevista Sac/Templo</th>
+          <th>Recomendación</th>
+          <th>S. Aarónico</th>
+          <th>Llamamiento</th>
+          <th>S. Melquisedec</th>
+          <th>Nombres Templo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let m of miembros">
+          <td class="text-left font-bold">{{ m.nombre_completo }}</td>
+         <!-- Año de Nacimiento (Editable) -->
+          <td>
+            <input type="number" class="input-inline input-year" 
+                   [(ngModel)]="m.anio_nacimiento" 
+                   (change)="actualizarCampo(m, 'anio_nacimiento')" 
+                   min="1900" [max]="anioActual">
+          </td>
+          
+          <!-- Edad Calculada (Se actualiza sola) -->
+          <td>
+            <span class="badge-edad">{{ calcularEdadCalendario(m.anio_nacimiento) }}</span>
+          </td>
+         <!-- Género -->
+          <td>
+            <span [class]="m.genero === 'M' ? 'gen-m' : 'gen-f'">{{ m.genero }}</span>
+          </td>
+
+          <!-- Fecha de Bautismo (Editable) -->
+          <td>
+            <input type="date" class="input-inline input-date" 
+                   [(ngModel)]="m.fecha_bautismo" 
+                   (change)="actualizarCampo(m, 'fecha_bautismo')">
+          </td>
+          <!-- HITO 1: Post Bautismal -->
+          <td>
+            <input *ngIf="aplicaHito(m, 'hito_post_bautismal'); else na" 
+                   type="checkbox" class="check-hito" [(ngModel)]="m.hito_post_bautismal" 
+                   (change)="actualizarCampo(m, 'hito_post_bautismal')">
+          </td>
+
+          <!-- HITO 2: Entrevista Templo -->
+          <td>
+            <input *ngIf="aplicaHito(m, 'hito_entrevista_templo'); else na" 
+                   type="checkbox" class="check-hito" [(ngModel)]="m.hito_entrevista_templo" 
+                   (change)="actualizarCampo(m, 'hito_entrevista_templo')">
+          </td>
+
+          <!-- HITO 3: Recomendación -->
+          <td>
+            <input *ngIf="aplicaHito(m, 'hito_recomendacion'); else na" 
+                   type="checkbox" class="check-hito" [(ngModel)]="m.hito_recomendacion" 
+                   (change)="actualizarCampo(m, 'hito_recomendacion')">
+          </td>
+
+          <!-- HITO 4: Aarónico -->
+          <td>
+            <input *ngIf="aplicaHito(m, 'hito_aaronico'); else na" 
+                   type="checkbox" class="check-hito" [(ngModel)]="m.hito_aaronico" 
+                   (change)="actualizarCampo(m, 'hito_aaronico')">
+          </td>
+
+          <!-- HITO 5: Llamamiento -->
+          <td>
+            <input *ngIf="aplicaHito(m, 'hito_llamamiento'); else na" 
+                   type="checkbox" class="check-hito" [(ngModel)]="m.hito_llamamiento" 
+                   (change)="actualizarCampo(m, 'hito_llamamiento')">
+          </td>
+
+          <!-- HITO 6: Melquisedec -->
+          <td>
+            <input *ngIf="aplicaHito(m, 'hito_melquisedec'); else na" 
+                   type="checkbox" class="check-hito" [(ngModel)]="m.hito_melquisedec" 
+                   (change)="actualizarCampo(m, 'hito_melquisedec')">
+          </td>
+
+          <!-- HITO 7: Nombres al Templo -->
+          <td>
+            <input *ngIf="aplicaHito(m, 'hito_nombres_templo'); else na" 
+                   type="checkbox" class="check-hito" [(ngModel)]="m.hito_nombres_templo" 
+                   (change)="actualizarCampo(m, 'hito_nombres_templo')">
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Template para campos que no aplican por edad/género -->
+<ng-template #na>
+  <span class="na-dash">-</span>
+</ng-template>
