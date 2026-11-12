@@ -8,7 +8,8 @@ import {
   PromedioMensual,
   AsistenciaSemanalBarrio,
   ResumenBarrioTrimestral,
-  getRangoTrimestre
+  getRangoTrimestre,
+  UnidadEstaca
 } from '../models/asistencia.model';
 import { BehaviorSubject } from 'rxjs';
 
@@ -33,42 +34,25 @@ export class AsistenciaService {
     });
   }
 
-  // Ahora el Guard leerá instantáneamente de la bóveda, sin esperar a Supabase
-  async getUsuarioActual(): Promise<any> {
-    return this.currentUser.value;
-  }
-
-  async login(email: string, password: string) {
-    const { user, session, error } = await this.supabase.auth.signIn({
-      email,
-      password
-    });
-    if (error) throw error;
-    
-    // Al hacer login, forzamos la actualización de la bóveda
-    this.currentUser.next(user);
-    return { user, session };
-  }
-
-  async logout() {
-    await this.supabase.auth.signOut();
-    this.currentUser.next(null); // Vaciamos la bóveda al salir
-  }
-
-  async getFechasRegistradas(): Promise<string[]> {
+  // 1. NUEVO MÉTODO: Obtener catálogo de unidades
+  async getUnidades(): Promise<UnidadEstaca[]> {
     const { data, error } = await this.supabase
-      .from('registros_domingo')
-      .select('fecha')
-      .order('fecha', { ascending: false });
+      .from('estaca_unidades')
+      .select('id, nombre')
+      .order('nombre', { ascending: true });
 
-    if (error) throw error;
-    return (data || []).map((item: any) => item.fecha);
+    if (error) {
+      console.error('Error cargando unidades:', error);
+      return [];
+    }
+    return data || [];
   }
 
+  // 2. ACTUALIZAR: Traer el nombre de la unidad mediante relación (join)
   async getReportePorFecha(fecha?: string): Promise<RegistroDomingo | null> {
     let query = this.supabase
       .from('registros_domingo')
-      .select('*, detalle_barrios(*)');
+      .select('*, detalle_barrios(*, estaca_unidades(nombre))');
 
     if (fecha) {
       query = query.eq('fecha', fecha);
@@ -77,30 +61,22 @@ export class AsistenciaService {
     }
 
     const { data, error } = await query.single();
-    if (error) return null;
+    if (error || !data) return null;
+
+    // Mapeamos estaca_unidades.nombre a barrio_nombre para que el HTML del dashboard funcione sin cambios
+    if (data.detalle_barrios) {
+      data.detalle_barrios = data.detalle_barrios
+        .map((d: any) => ({
+          ...d,
+          barrio_nombre: d.estaca_unidades?.nombre || d.barrio_nombre || 'Sin unidad'
+        }))
+        .sort((a: any, b: any) => a.barrio_nombre.localeCompare(b.barrio_nombre));
+    }
+
     return data as RegistroDomingo;
   }
 
-  async getPromedioTrimestreActual(fechaSeleccionada: string): Promise<{ promedioTotal: number, totalSemanasActivas: number }> {
-    const { inicio, fin } = getRangoTrimestre(fechaSeleccionada);
-
-    const { data, error } = await this.supabase
-      .from('registros_domingo')
-      .select('asistencia_total, es_semana_activa')
-      .gte('fecha', inicio)
-      .lte('fecha', fin)
-      .eq('es_semana_activa', true);
-
-    if (error || !data || data.length === 0) {
-      return { promedioTotal: 0, totalSemanasActivas: 0 };
-    }
-
-    const sumaTotales = data.reduce((acc, curr) => acc + (curr.asistencia_total || 0), 0);
-    const promedioTotal = Math.round(sumaTotales / data.length);
-
-    return { promedioTotal, totalSemanasActivas: data.length };
-  }
-
+  // 3. ACTUALIZAR: Reporte Trimestral dinámico por unidad_id
   async getReporteTrimestral(anio: number, trimestre: number): Promise<ReporteTrimestral> {
     let inicio = `${anio}-01-01`;
     let fin = `${anio}-03-31`;
@@ -118,18 +94,14 @@ export class AsistenciaService {
 
     if (errReg || !registros || registros.length === 0) {
       return {
-        trimestre,
-        anio,
-        semanas_registradas: 0,
-        asistencia_promedio_estaca: 0,
-        asistencia_trimestre_anterior_estaca: 0,
-        diferencia_promedio_estaca: 0,
-        promedios_mensuales: [],
-        asistencias_semanales: [],
-        detalles_barrios: []
+        trimestre, anio, semanas_registradas: 0, asistencia_promedio_estaca: 0,
+        asistencia_trimestre_anterior_estaca: 0, diferencia_promedio_estaca: 0,
+        promedios_mensuales: [], asistencias_semanales: [], detalles_barrios: []
       };
     }
 
+    // Obtenemos las unidades dinámicamente desde la BD
+    const unidades = await this.getUnidades();
     const idsRegistros = registros.map(r => r.id);
 
     const { data: detalles } = await this.supabase
@@ -157,10 +129,7 @@ export class AsistenciaService {
     registros.forEach(r => {
       const mesIndex = new Date(r.fecha + 'T00:00:00').getMonth();
       const actual = mesesMap.get(mesIndex) || { suma: 0, count: 0 };
-      mesesMap.set(mesIndex, {
-        suma: actual.suma + (r.asistencia_total || 0),
-        count: actual.count + 1
-      });
+      mesesMap.set(mesIndex, { suma: actual.suma + (r.asistencia_total || 0), count: actual.count + 1 });
     });
 
     const promediosMensuales: PromedioMensual[] = Array.from(mesesMap.entries()).map(([mesIndex, val]) => ({
@@ -169,8 +138,7 @@ export class AsistenciaService {
       promedioAsistencia: Math.round(val.suma / val.count)
     }));
 
-    const barriosNombres = ['Barrio Anaco', 'Barrio Cantaura', 'Barrio Pariaguán', 'Barrio Tigrito', 'Barrio Tigre'];
-
+    // Mapeo semanal cruzando por unidad_id
     const asistenciasSemanales: AsistenciaSemanalBarrio[] = registros.map(r => {
       const fObj = new Date(r.fecha + 'T00:00:00');
       const dia = String(fObj.getDate()).padStart(2, '0');
@@ -180,9 +148,9 @@ export class AsistenciaService {
       const mapaBarrios: { [key: string]: number } = {};
       const detallesSemana = (detalles || []).filter(d => d.registro_domingo_id === r.id);
 
-      barriosNombres.forEach(bNombre => {
-        const item = detallesSemana.find(d => d.barrio_nombre === bNombre);
-        mapaBarrios[bNombre] = item ? (item.asistencia_hoy || 0) : 0;
+      unidades.forEach(u => {
+        const item = detallesSemana.find(d => d.unidad_id === u.id);
+        mapaBarrios[u.nombre] = item ? (item.asistencia_hoy || 0) : 0;
       });
 
       return {
@@ -194,8 +162,9 @@ export class AsistenciaService {
       };
     });
 
-    const detallesBarrios: ResumenBarrioTrimestral[] = barriosNombres.map(bNombre => {
-      const itemsBarrio = (detalles || []).filter(d => d.barrio_nombre === bNombre);
+    // Resumen por barrio cruzando por unidad_id
+    const detallesBarrios: ResumenBarrioTrimestral[] = unidades.map(u => {
+      const itemsBarrio = (detalles || []).filter(d => d.unidad_id === u.id);
       const sumaHoy = itemsBarrio.reduce((acc, item) => acc + (item.asistencia_hoy || 0), 0);
       const promHoy = itemsBarrio.length > 0 ? Math.round(sumaHoy / itemsBarrio.length) : 0;
       const trimAnt = itemsBarrio[0]?.asistencia_trimestre_anterior || 0;
@@ -212,7 +181,7 @@ export class AsistenciaService {
       const pctCumplimiento = totalPosibles > 0 ? Math.round((totalCumplidas / totalPosibles) * 100) : 0;
 
       return {
-        barrio_nombre: bNombre,
+        barrio_nombre: u.nombre,
         total_asistencia: sumaHoy,
         promedio_asistencia: promHoy,
         asistencia_trimestre_anterior: trimAnt,
@@ -230,9 +199,7 @@ export class AsistenciaService {
     });
 
     return {
-      trimestre,
-      anio,
-      semanas_registradas: semanasCount,
+      trimestre, anio, semanas_registradas: semanasCount,
       asistencia_promedio_estaca: promedioEstaca,
       asistencia_trimestre_anterior_estaca: trimestreAnteriorEstaca,
       diferencia_promedio_estaca: promedioEstaca - trimestreAnteriorEstaca,
@@ -242,6 +209,7 @@ export class AsistenciaService {
     };
   }
 
+  // 4. ACTUALIZAR: Limpiar campos visuales antes de insertar en detalle_barrios
   async guardarReporteDominical(registro: RegistroDomingo, detalles: DetalleBarrio[]): Promise<boolean> {
     const { data: reg, error: errReg } = await this.supabase
       .from('registros_domingo')
@@ -253,8 +221,9 @@ export class AsistenciaService {
     const registroId = reg && reg[0] ? reg[0].id : null;
     if (!registroId) throw new Error('No se pudo obtener el ID del registro.');
 
-    const detallesConId = detalles.map(d => ({
-      ...d,
+    // Excluimos barrio_nombre y estaca_unidades para insertar solo columnas reales de la tabla
+    const detallesConId = detalles.map(({ barrio_nombre, estaca_unidades, ...resto }) => ({
+      ...resto,
       registro_domingo_id: registroId
     }));
 
@@ -266,5 +235,58 @@ export class AsistenciaService {
 
     if (errDet) throw errDet;
     return true;
+  }
+
+  // Ahora el Guard leerá instantáneamente de la bóveda, sin esperar a Supabase
+  async getUsuarioActual(): Promise<any> {
+    return this.currentUser.value;
+  }
+
+  async login(email: string, password: string) {
+    const { user, session, error } = await this.supabase.auth.signIn({
+      email,
+      password
+    });
+    if (error) throw error;
+
+    // Al hacer login, forzamos la actualización de la bóveda
+    this.currentUser.next(user);
+    return { user, session };
+  }
+
+  async logout() {
+    await this.supabase.auth.signOut();
+    this.currentUser.next(null); // Vaciamos la bóveda al salir
+  }
+
+  async getFechasRegistradas(): Promise<string[]> {
+    const { data, error } = await this.supabase
+      .from('registros_domingo')
+      .select('fecha')
+      .order('fecha', { ascending: false });
+
+    if (error) throw error;
+    return (data || []).map((item: any) => item.fecha);
+  }
+ 
+
+  async getPromedioTrimestreActual(fechaSeleccionada: string): Promise<{ promedioTotal: number, totalSemanasActivas: number }> {
+    const { inicio, fin } = getRangoTrimestre(fechaSeleccionada);
+
+    const { data, error } = await this.supabase
+      .from('registros_domingo')
+      .select('asistencia_total, es_semana_activa')
+      .gte('fecha', inicio)
+      .lte('fecha', fin)
+      .eq('es_semana_activa', true);
+
+    if (error || !data || data.length === 0) {
+      return { promedioTotal: 0, totalSemanasActivas: 0 };
+    }
+
+    const sumaTotales = data.reduce((acc, curr) => acc + (curr.asistencia_total || 0), 0);
+    const promedioTotal = Math.round(sumaTotales / data.length);
+
+    return { promedioTotal, totalSemanasActivas: data.length };
   }
 }

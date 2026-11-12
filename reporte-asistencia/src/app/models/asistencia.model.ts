@@ -1,7 +1,14 @@
+export interface UnidadEstaca {
+  id: number;
+  nombre: string;
+}
+
 export interface DetalleBarrio {
   id?: string;
   registro_domingo_id?: string;
-  barrio_nombre: string;
+  unidad_id: number; // 👈 Nuevo enlace por ID
+  barrio_nombre?: string; // Se mantiene opcional para visualización
+  estaca_unidades?: { nombre: string }; // 👈 Para el join de Supabase
   porcentaje: number;
   promedio: number;
   asistencia_hoy: number;

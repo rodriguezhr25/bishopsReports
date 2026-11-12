@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AsistenciaService } from '../../services/asistencia.service';
+import { UnidadEstaca } from '../../models/asistencia.model';
 
 @Component({
   selector: 'app-admin-form',
@@ -10,7 +11,7 @@ import { AsistenciaService } from '../../services/asistencia.service';
 })
 export class AdminFormComponent implements OnInit {
   form: FormGroup;
-  barriosPredeterminados = ['Barrio Anaco', 'Barrio Cantaura', 'Barrio Pariaguán', 'Barrio Tigrito', 'Barrio Tigre'];
+  unidades: UnidadEstaca[] = []; // 👈 Reemplaza barriosPredeterminados
   guardando: boolean = false;
   esEdicion: boolean = false;
 
@@ -32,31 +33,25 @@ export class AdminFormComponent implements OnInit {
   }
 
   async ngOnInit() {
+    // 1. Cargamos las unidades desde la BD antes de armar el formulario
+    this.unidades = await this.asistenciaService.getUnidades();
     this.inicializarBarrios();
 
-    // 1. Obtener la fecha inicial desde la URL o la fecha de hoy
     const fechaParam = this.route.snapshot.queryParamMap.get('fecha');
     let fechaInicial = this.getFechaHoyLocal();
-
     if (fechaParam) {
-      // Formatear a YYYY-MM-DD para evitar diferencias de zona horaria o ISO String
       fechaInicial = fechaParam.substring(0, 10);
     }
 
-    // 2. Establecer la fecha en el formulario sin disparar eventos automáticos
     this.form.patchValue({ fecha: fechaInicial }, { emitEvent: false });
-
-    // 3. Cargar el registro desde Supabase para esa fecha
     await this.cargarRegistroPorFecha(fechaInicial);
 
-    // 4. Suscribirse a cambios manuales del usuario en el selector de fecha
     this.form.get('fecha')?.valueChanges.subscribe(async (nuevaFecha) => {
       if (nuevaFecha) {
         await this.cargarRegistroPorFecha(nuevaFecha.substring(0, 10));
       }
     });
 
-    // 5. Suscribirse a cambios del toggle de semana activa
     this.form.get('es_semana_activa')?.valueChanges.subscribe((activa) => {
       if (!activa) {
         this.detallesFormArray.controls.forEach(group => {
@@ -74,7 +69,6 @@ export class AdminFormComponent implements OnInit {
       }
     });
 
-    // 6. Recalcular incrementos y totales cuando cambie cualquier valor
     this.detallesFormArray.valueChanges.subscribe(() => {
       this.recalcularCalculosBarriosYEstaca();
     });
@@ -94,9 +88,10 @@ export class AdminFormComponent implements OnInit {
 
   inicializarBarrios() {
     this.detallesFormArray.clear();
-    this.barriosPredeterminados.forEach(barrio => {
+    this.unidades.forEach(unidad => {
       this.detallesFormArray.push(this.fb.group({
-        barrio_nombre: [barrio],
+        unidad_id: [unidad.id], // 👈 ID relacional
+        barrio_nombre: [unidad.nombre], // 👈 Solo para mostrar el título en el HTML
         porcentaje: [0],
         promedio: [0],
         asistencia_hoy: [0, Validators.required],
@@ -128,15 +123,14 @@ export class AdminFormComponent implements OnInit {
         }, { emitEvent: false });
 
         const barriosExistentes = registroExistente.detalle_barrios || [];
-
-        // Asegurar que existan los grupos de barrios cargados
         if (this.detallesFormArray.length === 0) {
           this.inicializarBarrios();
         }
 
         this.detallesFormArray.controls.forEach((control) => {
+          // 👇 Emparejamos por unidad_id
           const detalle = barriosExistentes.find(
-            d => d.barrio_nombre === control.value.barrio_nombre
+            d => d.unidad_id === control.value.unidad_id
           );
           if (detalle) {
             control.patchValue({
@@ -177,8 +171,9 @@ export class AdminFormComponent implements OnInit {
 
       const barriosPrevios = ultimoRegistro.detalle_barrios || [];
       this.detallesFormArray.controls.forEach((control) => {
+        // 👇 Emparejamos por unidad_id
         const detallePrevio = barriosPrevios.find(
-          d => d.barrio_nombre === control.value.barrio_nombre
+          d => d.unidad_id === control.value.unidad_id
         );
         if (detallePrevio) {
           control.patchValue({

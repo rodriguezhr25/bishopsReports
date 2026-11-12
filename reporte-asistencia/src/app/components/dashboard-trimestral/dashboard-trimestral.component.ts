@@ -31,12 +31,15 @@ export class DashboardTrimestralComponent implements OnInit {
     { num: 4, label: 'T4 (Oct - Dic)' }
   ];
 
-  barriosInfo = [
-    { key: 'Barrio Anaco', label: 'Barrio Anaco', color: '#3b82f6' },
-    { key: 'Barrio Cantaura', label: 'Barrio Cantaura', color: '#10b981' },
-    { key: 'Barrio Pariaguán', label: 'Barrio Pariaguán', color: '#f59e0b' },
-    { key: 'Barrio Tigrito', label: 'Barrio Tigrito', color: '#ef4444' },
-    { key: 'Barrio Tigre', label: 'Barrio Tigre', color: '#8b5cf6' }
+  // Paleta dinámica para asignar color automáticamente sin importar cuántos barrios/ramas existan
+  paletaColores: string[] = [
+    '#3b82f6', // Azul
+    '#10b981', // Verde esmeralda
+    '#f59e0b', // Ámbar
+    '#ef4444', // Rojo
+    '#8b5cf6', // Violeta
+    '#06b6d4', // Cian
+    '#ec4899'  // Rosa
   ];
 
   constructor(private asistenciaService: AsistenciaService, private router: Router) {}
@@ -90,7 +93,6 @@ export class DashboardTrimestralComponent implements OnInit {
     const semanas = this.reporte.asistencias_semanales;
     const labels = semanas.map(s => `${s.semanaEtiqueta}`);
 
-    // 1. Gráfica Principal de la Estaca
     // 1. Gráfica Principal de la Estaca (Escala fija de 0 a 500 sin decimales)
     if (this.chartEstacaCanvas) {
       const dataEstaca = semanas.map(s => s.totalEstaca);
@@ -122,10 +124,10 @@ export class DashboardTrimestralComponent implements OnInit {
             y: {
               beginAtZero: true,
               min: 0,
-              max: 500, // Límite máximo para la Estaca
+              max: 500,
               ticks: {
                 precision: 0,
-                stepSize: 100 // Intervalos limpios: 0, 100, 200, 300, 400, 500
+                stepSize: 100
               },
               grid: { color: '#f1f5f9' }
             },
@@ -135,23 +137,27 @@ export class DashboardTrimestralComponent implements OnInit {
       });
     }
 
-    // 2. Gráficas individuales por Barrio (Escala fija de 0 a 150 sin decimales)
-    this.barriosInfo.forEach(barrio => {
-      const canvas = document.getElementById(`chart-${barrio.key}`) as HTMLCanvasElement;
+    // 2. Gráficas individuales dinámicas por Unidad (Escala fija de 0 a 150 sin decimales)
+    this.reporte.detalles_barrios.forEach((barrio, index) => {
+      const canvasId = `chart-barrio-${index}`;
+      const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
+
       if (canvas) {
-        const dataBarrio = semanas.map(s => s.asistenciasPorBarrio[barrio.key] || 0);
-        this.charts[barrio.key] = new Chart(canvas, {
+        const color = this.paletaColores[index % this.paletaColores.length];
+        const dataBarrio = semanas.map(s => s.asistenciasPorBarrio[barrio.barrio_nombre] || 0);
+
+        this.charts[canvasId] = new Chart(canvas, {
           type: 'line',
           data: {
             labels: labels,
             datasets: [{
-              label: barrio.label,
+              label: barrio.barrio_nombre,
               data: dataBarrio,
-              borderColor: barrio.color,
-              backgroundColor: `${barrio.color}1e`,
+              borderColor: color,
+              backgroundColor: `${color}1e`,
               borderWidth: 2.5,
               pointRadius: 4,
-              pointBackgroundColor: barrio.color,
+              pointBackgroundColor: color,
               fill: true,
               tension: 0.25
             }]
@@ -161,7 +167,7 @@ export class DashboardTrimestralComponent implements OnInit {
             maintainAspectRatio: false,
             plugins: {
               legend: { display: false },
-              title: { display: true, text: barrio.label, font: { size: 14, weight: 'bold' } }
+              title: { display: true, text: barrio.barrio_nombre, font: { size: 14, weight: 'bold' } }
             },
             scales: {
               y: {
