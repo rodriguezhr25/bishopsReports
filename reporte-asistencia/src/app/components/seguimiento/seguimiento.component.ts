@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { SeguimientoService } from '../../services/seguimiento.service';
-import { MiembroSeguimiento } from '../../models/seguimiento.model';
+import { MiembroSeguimiento, UnidadEstaca } from '../../models/seguimiento.model';
 import html2canvas from 'html2canvas';
 
 @Component({
@@ -17,21 +17,98 @@ export class SeguimientoComponent implements OnInit {
 
   // Usamos el año actual dinámicamente para el cálculo de la edad calendario
   anioActual: number = new Date().getFullYear();
+  // Variables para el Modal
+  // Variables para el Modal
+  mostrarModalNuevo: boolean = false;
+  guardandoNuevo: boolean = false;
+  nuevoMiembro: Partial<MiembroSeguimiento> = {};
+  // Variables para el Modal de Confirmación de Baja
+  mostrarModalBaja: boolean = false;
+  procesandoBaja: boolean = false;
+  miembroSeleccionadoBaja: MiembroSeguimiento | null = null;
+
+  // Opciones de barrios para el modal
+  barriosDisponibles: string[] = [];
+  unidadesDisponibles: UnidadEstaca[] = [];
+  unidadSeleccionadaId: number = 0;
 
   constructor(private seguimientoService: SeguimientoService) { }
 
-  ngOnInit(): void {
-    this.cargarMiembros();
+
+  // Getter útil para mostrar el nombre del barrio en el título de la tarjeta y al exportar imagen
+  get nombreUnidadSeleccionada(): string {
+    const unidad = this.unidadesDisponibles.find(u => u.id === Number(this.unidadSeleccionadaId));
+    return unidad ? unidad.nombre : '';
+  }
+
+  async ngOnInit() {
+    try {
+      this.unidadesDisponibles = await this.seguimientoService.getUnidades();
+      
+      if (!this.unidadSeleccionadaId && this.unidadesDisponibles.length > 0) {
+        this.unidadSeleccionadaId = this.unidadesDisponibles[0].id;
+      }
+
+      await this.cargarMiembros();
+    } catch (error) {
+      console.error("Error inicializando:", error);
+    }
   }
 
   async cargarMiembros() {
+    if (!this.unidadSeleccionadaId) return;
     this.cargando = true;
     try {
-      this.miembros = await this.seguimientoService.getMiembrosPorBarrio(this.barrioSeleccionado);
+      this.miembros = await this.seguimientoService.getMiembrosPorUnidad(Number(this.unidadSeleccionadaId));
     } catch (error) {
-      alert('Hubo un error al cargar la lista de miembros.');
+      console.error('Error cargando miembros:', error);
     } finally {
       this.cargando = false;
+    }
+  }
+
+  abrirModalNuevo() {
+    this.nuevoMiembro = {
+      unidad_id: Number(this.unidadSeleccionadaId), // 👈 Asigna el ID actual
+      nombre_completo: '',
+      genero: 'M',
+      anio_nacimiento: this.anioActual - 20,
+      fecha_bautismo: '',
+      activo: true,
+      hito_post_bautismal: false,
+      hito_entrevista_templo: false,
+      hito_recomendacion: false,
+      hito_aaronico: false,
+      hito_llamamiento: false,
+      hito_melquisedec: false,
+      hito_nombres_templo: false
+    };
+    this.mostrarModalNuevo = true;
+  }
+
+  async guardarNuevoConverso() {
+    if (!this.nuevoMiembro.nombre_completo || !this.nuevoMiembro.anio_nacimiento || !this.nuevoMiembro.fecha_bautismo) {
+      alert('Por favor, completa todos los campos obligatorios.');
+      return;
+    }
+
+    // Aseguramos que unidad_id viaje como número entero (los <select> en HTML a veces devuelven string)
+    this.nuevoMiembro.unidad_id = Number(this.nuevoMiembro.unidad_id);
+
+    this.guardandoNuevo = true;
+    try {
+      await this.seguimientoService.agregarMiembro(this.nuevoMiembro);
+      
+      if (this.nuevoMiembro.unidad_id !== Number(this.unidadSeleccionadaId)) {
+        this.unidadSeleccionadaId = this.nuevoMiembro.unidad_id;
+      }
+      
+      await this.cargarMiembros();
+      this.cerrarModalNuevo();
+    } catch (error) {
+      alert('Error al guardar el nuevo converso.');
+    } finally {
+      this.guardandoNuevo = false;
     }
   }
 
@@ -109,5 +186,56 @@ export class SeguimientoComponent implements OnInit {
       }
     }
     this.exportando = false;
+  } 
+
+  // Abre el modal guardando quién será dado de baja
+  abrirModalBaja(miembro: MiembroSeguimiento) {
+    if (!miembro.id) return;
+    this.miembroSeleccionadoBaja = miembro;
+    this.mostrarModalBaja = true;
+  }
+
+  cerrarModalBaja() {
+    if (this.procesandoBaja) return;
+    this.mostrarModalBaja = false;
+    this.miembroSeleccionadoBaja = null;
+  }
+
+  // Ejecuta la baja al confirmar en el modal
+async confirmarBaja() {
+    if (!this.miembroSeleccionadoBaja?.id) return;
+
+    this.procesandoBaja = true;
+    try {
+      await this.seguimientoService.darDeBajaMiembro(this.miembroSeleccionadoBaja.id);
+      this.miembros = this.miembros.filter(m => m.id !== this.miembroSeleccionadoBaja!.id);
+      
+      // Apagamos el estado de carga ANTES de cerrar el modal
+      this.procesandoBaja = false;
+      this.cerrarModalBaja();
+    } catch (error) {
+      this.procesandoBaja = false;
+      alert('No se pudo dar de baja al registro. Intenta nuevamente.');
+    }
+  }
+
+  // NUEVA FUNCIÓN PARA DAR DE BAJA
+  async darDeBaja(miembro: MiembroSeguimiento) {
+    if (!miembro.id) return;
+
+    const confirmado = confirm(`¿Estás seguro de dar de baja a ${miembro.nombre_completo}? Dejará de mostrarse en el listado y en las estadísticas.`);
+    if (!confirmado) return;
+
+    try {
+      await this.seguimientoService.darDeBajaMiembro(miembro.id);
+      // Lo quitamos de la vista inmediatamente sin necesidad de recargar toda la página
+      this.miembros = this.miembros.filter(m => m.id !== miembro.id);
+    } catch (error) {
+      alert('No se pudo dar de baja al registro. Intenta nuevamente.');
+    }
+  }
+
+  cerrarModalNuevo() {
+    this.mostrarModalNuevo = false;
   }
 }

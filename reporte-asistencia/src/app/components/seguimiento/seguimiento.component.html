@@ -4,8 +4,9 @@
 
 <div class="top-nav">
   <div class="selector-container">
-    <select [(ngModel)]="barrioSeleccionado" (change)="cargarMiembros()">
-      <option *ngFor="let b of barrios" [value]="b">{{ b }}</option>
+    <!-- Selector superior -->
+    <select [(ngModel)]="unidadSeleccionadaId" (change)="cargarMiembros()">
+      <option *ngFor="let u of unidadesDisponibles" [ngValue]="u.id">{{ u.nombre }}</option>
     </select>
   </div>
 
@@ -14,13 +15,17 @@
       {{ exportando ? 'Generando...' : '📷 Exportar Imagen' }}
     </button>
     <a routerLink="/dashboard-seguimiento" class="btn-secondary">← Volver a Estadísticas</a>
+    <!-- Agrega este botón junto a los otros de la barra superior -->
+    <button (click)="abrirModalNuevo()" class="btn-primary">
+      + Nuevo Converso
+    </button>
   </div>
 </div>
 
 <!-- Cambia esta línea -->
 <div id="lista-to-export" class="dashboard-card">
   <div class="header-card">
-    <h3>Lista de Conversos - {{ barrioSeleccionado }}</h3>
+    <h3>Lista de Conversos - {{ nombreUnidadSeleccionada }}</h3>
     <span class="badge" *ngIf="!cargando">{{ miembros.length }} Registros</span>
   </div>
 
@@ -48,81 +53,78 @@
           <th>Llamamiento</th>
           <th>S. Melquisedec</th>
           <th>Nombres Templo</th>
+          <th class="col-acciones">Acción</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let m of miembros">
           <td class="text-left font-bold">{{ m.nombre_completo }}</td>
-         <!-- Año de Nacimiento (Editable) -->
+          <!-- Año de Nacimiento (Editable) -->
           <td>
-            <input type="number" class="input-inline input-year" 
-                   [(ngModel)]="m.anio_nacimiento" 
-                   (change)="actualizarCampo(m, 'anio_nacimiento')" 
-                   min="1900" [max]="anioActual">
+            <input type="number" class="input-inline input-year" [(ngModel)]="m.anio_nacimiento"
+              (change)="actualizarCampo(m, 'anio_nacimiento')" min="1900" [max]="anioActual">
           </td>
-          
+
           <!-- Edad Calculada (Se actualiza sola) -->
           <td>
             <span class="badge-edad">{{ calcularEdadCalendario(m.anio_nacimiento) }}</span>
           </td>
-         <!-- Género -->
+          <!-- Género -->
           <td>
             <span [class]="m.genero === 'M' ? 'gen-m' : 'gen-f'">{{ m.genero }}</span>
           </td>
 
           <!-- Fecha de Bautismo (Editable) -->
           <td>
-            <input type="date" class="input-inline input-date" 
-                   [(ngModel)]="m.fecha_bautismo" 
-                   (change)="actualizarCampo(m, 'fecha_bautismo')">
+            <input type="date" class="input-inline input-date" [(ngModel)]="m.fecha_bautismo"
+              (change)="actualizarCampo(m, 'fecha_bautismo')">
           </td>
           <!-- HITO 1: Post Bautismal -->
           <td>
-            <input *ngIf="aplicaHito(m, 'hito_post_bautismal'); else na" 
-                   type="checkbox" class="check-hito" [(ngModel)]="m.hito_post_bautismal" 
-                   (change)="actualizarCampo(m, 'hito_post_bautismal')">
+            <input *ngIf="aplicaHito(m, 'hito_post_bautismal'); else na" type="checkbox" class="check-hito"
+              [(ngModel)]="m.hito_post_bautismal" (change)="actualizarCampo(m, 'hito_post_bautismal')">
           </td>
 
           <!-- HITO 2: Entrevista Templo -->
           <td>
-            <input *ngIf="aplicaHito(m, 'hito_entrevista_templo'); else na" 
-                   type="checkbox" class="check-hito" [(ngModel)]="m.hito_entrevista_templo" 
-                   (change)="actualizarCampo(m, 'hito_entrevista_templo')">
+            <input *ngIf="aplicaHito(m, 'hito_entrevista_templo'); else na" type="checkbox" class="check-hito"
+              [(ngModel)]="m.hito_entrevista_templo" (change)="actualizarCampo(m, 'hito_entrevista_templo')">
           </td>
 
           <!-- HITO 3: Recomendación -->
           <td>
-            <input *ngIf="aplicaHito(m, 'hito_recomendacion'); else na" 
-                   type="checkbox" class="check-hito" [(ngModel)]="m.hito_recomendacion" 
-                   (change)="actualizarCampo(m, 'hito_recomendacion')">
+            <input *ngIf="aplicaHito(m, 'hito_recomendacion'); else na" type="checkbox" class="check-hito"
+              [(ngModel)]="m.hito_recomendacion" (change)="actualizarCampo(m, 'hito_recomendacion')">
           </td>
 
           <!-- HITO 4: Aarónico -->
           <td>
-            <input *ngIf="aplicaHito(m, 'hito_aaronico'); else na" 
-                   type="checkbox" class="check-hito" [(ngModel)]="m.hito_aaronico" 
-                   (change)="actualizarCampo(m, 'hito_aaronico')">
+            <input *ngIf="aplicaHito(m, 'hito_aaronico'); else na" type="checkbox" class="check-hito"
+              [(ngModel)]="m.hito_aaronico" (change)="actualizarCampo(m, 'hito_aaronico')">
           </td>
 
           <!-- HITO 5: Llamamiento -->
           <td>
-            <input *ngIf="aplicaHito(m, 'hito_llamamiento'); else na" 
-                   type="checkbox" class="check-hito" [(ngModel)]="m.hito_llamamiento" 
-                   (change)="actualizarCampo(m, 'hito_llamamiento')">
+            <input *ngIf="aplicaHito(m, 'hito_llamamiento'); else na" type="checkbox" class="check-hito"
+              [(ngModel)]="m.hito_llamamiento" (change)="actualizarCampo(m, 'hito_llamamiento')">
           </td>
 
           <!-- HITO 6: Melquisedec -->
           <td>
-            <input *ngIf="aplicaHito(m, 'hito_melquisedec'); else na" 
-                   type="checkbox" class="check-hito" [(ngModel)]="m.hito_melquisedec" 
-                   (change)="actualizarCampo(m, 'hito_melquisedec')">
+            <input *ngIf="aplicaHito(m, 'hito_melquisedec'); else na" type="checkbox" class="check-hito"
+              [(ngModel)]="m.hito_melquisedec" (change)="actualizarCampo(m, 'hito_melquisedec')">
           </td>
 
           <!-- HITO 7: Nombres al Templo -->
           <td>
-            <input *ngIf="aplicaHito(m, 'hito_nombres_templo'); else na" 
-                   type="checkbox" class="check-hito" [(ngModel)]="m.hito_nombres_templo" 
-                   (change)="actualizarCampo(m, 'hito_nombres_templo')">
+            <input *ngIf="aplicaHito(m, 'hito_nombres_templo'); else na" type="checkbox" class="check-hito"
+              [(ngModel)]="m.hito_nombres_templo" (change)="actualizarCampo(m, 'hito_nombres_templo')">
+          </td>
+          <!-- En el <tbody> dentro de *ngFor="let m of miembros", después del último <td> -->
+          <td class="col-acciones">
+            <button (click)="abrirModalBaja(m)" class="btn-baja" title="Dar de baja">
+              🗑️
+            </button>
           </td>
         </tr>
       </tbody>
@@ -134,3 +136,78 @@
 <ng-template #na>
   <span class="na-dash">-</span>
 </ng-template>
+
+<!-- MODAL PARA NUEVO CONVERSO -->
+<div class="modal-overlay" *ngIf="mostrarModalNuevo">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Registrar Nuevo Converso</h3>
+      <button class="close-btn" (click)="cerrarModalNuevo()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Barrio / Unidad</label>
+        <select [(ngModel)]="nuevoMiembro.unidad_id" class="form-control">
+          <option *ngFor="let u of unidadesDisponibles" [ngValue]="u.id">{{ u.nombre }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Nombre Completo</label>
+        <input type="text" [(ngModel)]="nuevoMiembro.nombre_completo" class="form-control" placeholder="Ej. Juan Pérez">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group half">
+          <label>Género</label>
+          <select [(ngModel)]="nuevoMiembro.genero" class="form-control">
+            <option value="M">Masculino (M)</option>
+            <option value="F">Femenino (F)</option>
+          </select>
+        </div>
+        <div class="form-group half">
+          <label>Año de Nacimiento</label>
+          <input type="number" [(ngModel)]="nuevoMiembro.anio_nacimiento" class="form-control" min="1900"
+            [max]="anioActual">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Fecha del Bautismo</label>
+        <input type="date" [(ngModel)]="nuevoMiembro.fecha_bautismo" class="form-control">
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="cerrarModalNuevo()" [disabled]="guardandoNuevo">Cancelar</button>
+      <button class="btn-primary" (click)="guardarNuevoConverso()" [disabled]="guardandoNuevo">
+        {{ guardandoNuevo ? 'Guardando...' : 'Guardar Registro' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL DE CONFIRMACIÓN DE BAJA -->
+<div class="modal-overlay" *ngIf="mostrarModalBaja" (click)="cerrarModalBaja()">
+  <div class="modal-content modal-confirm" (click)="$event.stopPropagation()">
+    <div class="modal-body text-center">
+      <div class="warning-icon">⚠️</div>
+      <h3>¿Dar de baja a este converso?</h3>
+      <p class="confirm-text">
+        Estás a punto de marcar como inactivo a <strong>{{ miembroSeleccionadoBaja?.nombre_completo }}</strong>.
+        Dejará de mostrarse en este listado y en las estadísticas de la estaca.
+      </p>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="cerrarModalBaja()" [disabled]="procesandoBaja">
+        Cancelar
+      </button>
+      <button class="btn-danger" (click)="confirmarBaja()" [disabled]="procesandoBaja">
+        {{ procesandoBaja ? 'Procesando...' : 'Sí, dar de baja' }}
+      </button>
+    </div>
+  </div>
+</div>

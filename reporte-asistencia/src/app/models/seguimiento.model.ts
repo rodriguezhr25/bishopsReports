@@ -1,13 +1,19 @@
 // ==========================================
-// 1. MODELO DE BASE DE DATOS (Supabase)
+// 1. MODELOS DE BASE DE DATOS (Supabase)
 // ==========================================
+export interface UnidadEstaca {
+  id: number;
+  nombre: string;
+}
+
 export interface MiembroSeguimiento {
   id?: string;
-  barrio: string;
+  unidad_id: number; // 👈 Ahora mapea por ID numérico
   nombre_completo: string;
   genero: 'M' | 'F';
   anio_nacimiento: number;
   fecha_bautismo?: string;
+  activo?: boolean;
   
   hito_post_bautismal: boolean;
   hito_entrevista_templo: boolean;

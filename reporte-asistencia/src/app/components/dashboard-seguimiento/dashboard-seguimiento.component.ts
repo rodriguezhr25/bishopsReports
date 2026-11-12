@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { SeguimientoService } from '../../services/seguimiento.service';
-import { MiembroSeguimiento, EstadisticaBarrio, EstadisticaEstaca } from '../../models/seguimiento.model';
+import { MiembroSeguimiento, EstadisticaBarrio, EstadisticaEstaca, UnidadEstaca } from '../../models/seguimiento.model';
 import html2canvas from 'html2canvas';
 
 @Component({
@@ -13,7 +13,7 @@ import html2canvas from 'html2canvas';
 export class DashboardSeguimientoComponent implements OnInit {
   cargando: boolean = true;
   anioActual: number = new Date().getFullYear();
-  nombresBarrios = ['Barrio Anaco', 'Barrio Cantaura', 'Barrio Pariaguán', 'Barrio Tigrito', 'Barrio Tigre'];
+  nombresBarrios: string[] = [];
 
   estadisticasBarrios: EstadisticaBarrio[] = [];
 
@@ -22,73 +22,57 @@ export class DashboardSeguimientoComponent implements OnInit {
     desglose: this.crearDesgloseVacio()
   };
   exportando: boolean = false;
+  unidades: UnidadEstaca[] = [];
 
   constructor(private seguimientoService: SeguimientoService) { }
 
-  ngOnInit(): void {
+  async ngOnInit() {
+    this.unidades = await this.seguimientoService.getUnidades();
     this.generarEstadisticas();
-  }
-
-  // Helper para inicializar desgloses en 0
-  private crearDesgloseVacio() {
-    return {
-      postBautismal: { posibles: 0, cumplidos: 0, porcentaje: 0 },
-      entrevista: { posibles: 0, cumplidos: 0, porcentaje: 0 },
-      recomendacion: { posibles: 0, cumplidos: 0, porcentaje: 0 },
-      aaronico: { posibles: 0, cumplidos: 0, porcentaje: 0 },
-      llamamiento: { posibles: 0, cumplidos: 0, porcentaje: 0 },
-      melquisedec: { posibles: 0, cumplidos: 0, porcentaje: 0 },
-      nombresTemplo: { posibles: 0, cumplidos: 0, porcentaje: 0 }
-    };
-  }
-
-  // Helper matemático
-  private calcPorcentaje(cumplidos: number, posibles: number): number {
-    return posibles > 0 ? Math.round((cumplidos / posibles) * 100) : 0;
   }
 
   async generarEstadisticas() {
     this.cargando = true;
     try {
       const todosLosMiembros = await this.seguimientoService.getTodosLosMiembros();
-
-      const mapaBarrios = new Map<string, EstadisticaBarrio>();
-      this.nombresBarrios.forEach(b => {
-        mapaBarrios.set(b, {
-          nombre: b, totalMiembros: 0, hitosPosibles: 0, hitosCumplidos: 0, porcentaje: 0,
-          miembrosEnRiesgo: 0, // 👈 Inicializamos
+      
+      // Mapa indexado por el ID numérico de la unidad
+      const mapaBarrios = new Map<number, EstadisticaBarrio>();
+      this.unidades.forEach(u => {
+        mapaBarrios.set(u.id, { 
+          nombre: u.nombre, 
+          totalMiembros: 0, 
+          hitosPosibles: 0, 
+          hitosCumplidos: 0, 
+          porcentaje: 0,
+          miembrosEnRiesgo: 0,
           desglose: this.crearDesgloseVacio()
         });
       });
 
-      this.estacaStats = {
-        totalMiembros: 0,
-        hitosPosibles: 0,
-        hitosCumplidos: 0,
-        porcentaje: 0,
-        miembrosEnRiesgo: 0, // 👈 ¡Aquí faltaba esto!
-        desglose: this.crearDesgloseVacio()
+      this.estacaStats = { 
+        totalMiembros: 0, hitosPosibles: 0, hitosCumplidos: 0, porcentaje: 0, 
+        miembrosEnRiesgo: 0, desglose: this.crearDesgloseVacio() 
       };
 
       todosLosMiembros.forEach(miembro => {
         const ev = this.evaluarMiembro(miembro);
-        const barrioStat = mapaBarrios.get(miembro.barrio);
-
-        // Sumar métrica "En Riesgo" (<= 2 hitos cumplidos)
+        // Buscamos directamente por unidad_id (cero fallos por texto)
+        const barrioStat = mapaBarrios.get(miembro.unidad_id);
         const enRiesgo = ev.totalCumplidos <= 2 ? 1 : 0;
 
         if (barrioStat) {
           barrioStat.totalMiembros++;
           barrioStat.hitosPosibles += ev.totalPosibles;
           barrioStat.hitosCumplidos += ev.totalCumplidos;
-          barrioStat.miembrosEnRiesgo += enRiesgo; // 👈 Sumamos si aplica
+          barrioStat.miembrosEnRiesgo += enRiesgo;
           this.sumarHitos(barrioStat.desglose, ev);
         }
 
         this.estacaStats.totalMiembros++;
         this.estacaStats.hitosPosibles += ev.totalPosibles;
         this.estacaStats.hitosCumplidos += ev.totalCumplidos;
-        this.estacaStats.miembrosEnRiesgo += enRiesgo; // 👈 Sumamos a la estaca
+        this.estacaStats.miembrosEnRiesgo += enRiesgo;
         this.sumarHitos(this.estacaStats.desglose, ev);
       });
 
@@ -107,6 +91,24 @@ export class DashboardSeguimientoComponent implements OnInit {
       this.cargando = false;
     }
   }
+
+  // Helper para inicializar desgloses en 0
+  private crearDesgloseVacio() {
+    return {
+      postBautismal: { posibles: 0, cumplidos: 0, porcentaje: 0 },
+      entrevista: { posibles: 0, cumplidos: 0, porcentaje: 0 },
+      recomendacion: { posibles: 0, cumplidos: 0, porcentaje: 0 },
+      aaronico: { posibles: 0, cumplidos: 0, porcentaje: 0 },
+      llamamiento: { posibles: 0, cumplidos: 0, porcentaje: 0 },
+      melquisedec: { posibles: 0, cumplidos: 0, porcentaje: 0 },
+      nombresTemplo: { posibles: 0, cumplidos: 0, porcentaje: 0 }
+    };
+  }
+
+  // Helper matemático
+  private calcPorcentaje(cumplidos: number, posibles: number): number {
+    return posibles > 0 ? Math.round((cumplidos / posibles) * 100) : 0;
+  }  
 
   private sumarHitos(destino: any, evaluacion: any) {
     destino.postBautismal.posibles += evaluacion.postBautismal.posibles;

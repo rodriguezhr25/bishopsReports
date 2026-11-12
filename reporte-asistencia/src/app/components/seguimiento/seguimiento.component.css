@@ -34,7 +34,6 @@
   -webkit-appearance: none;
   -moz-appearance: none;
   background-color: #ffffff;
-  /* Aquí está la magia de la flechita */
   background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2300838F%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
   background-repeat: no-repeat;
   background-position: right 16px center;
@@ -42,7 +41,6 @@
   border: 2px solid #e2e8f0;
   border-radius: 12px;
   padding: 10px 40px 10px 16px;
-  /* Espacio extra a la derecha para que el texto no pise la flecha */
   font-size: 16px;
   font-weight: 600;
   color: #0f172a;
@@ -60,22 +58,6 @@
   outline: none;
   border-color: #00838f;
   box-shadow: 0 0 0 3px rgba(0, 131, 143, 0.18);
-}
-
-.nav-actions .btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #00838f, #005b60);
-  color: #ffffff;
-  border-radius: 12px;
-  text-decoration: none;
-  font-weight: 700;
-  font-size: 14px;
-  padding: 0 16px;
-  height: 44px;
-  box-shadow: 0 4px 12px rgba(0, 131, 143, 0.25);
-  transition: all 0.25s ease;
 }
 
 .dashboard-card {
@@ -119,15 +101,15 @@
   font-size: 16px;
 }
 
-/* TABLA RESPONSIVA Y ENCABEZADO FIJO */
+/* ==========================================
+   TABLA RESPONSIVA Y ENCABEZADO FIJO
+   ========================================== */
 .table-responsive {
   width: 100%;
-  /* Le damos una altura máxima a la tabla para que haga scroll interno */
   max-height: 65vh;
   overflow-y: auto;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  /* Un borde sutil redondeado para que el scroll se vea elegante */
   border: 1px solid #e2e8f0;
   border-radius: 12px;
 }
@@ -136,9 +118,7 @@
   width: 100%;
   min-width: 900px;
   border-collapse: collapse;
-  /* Mantenemos collapse pero... */
   border-spacing: 0;
-  /* Aseguramos que no haya espacios */
   text-align: center;
   font-size: 14px;
 }
@@ -149,20 +129,14 @@
   color: #334155;
   font-weight: 700;
   border-bottom: 2px solid #cbd5e1;
-  /* Borde inferior más fuerte */
   border-right: 1px solid #e2e8f0;
   border-left: 1px solid #e2e8f0;
-
-  /* AQUÍ ESTÁ LA MAGIA DEL ENCABEZADO FIJO */
   position: sticky;
   top: 0;
   z-index: 10;
-
-  /* Una pequeña sombra para separar visualmente el encabezado del contenido al hacer scroll */
   box-shadow: 0 4px 6px -4px rgba(0, 0, 0, 0.1);
 }
 
-/* Quitamos los bordes superiores de la primera fila para que no choquen con el sticky */
 .tracking-table td {
   padding: 10px 8px;
   border-bottom: 1px solid #e2e8f0;
@@ -263,7 +237,9 @@
   cursor: text;
 }
 
-/* NAVEGACIÓN Y BOTONES */
+/* ==========================================
+   NAVEGACIÓN Y BOTONES SUPERIORES
+   ========================================== */
 .nav-actions {
   display: flex;
   gap: 10px;
@@ -272,7 +248,8 @@
 }
 
 .nav-actions .btn-secondary,
-.nav-actions .btn-primary {
+.nav-actions .btn-primary,
+.nav-actions .btn-export {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -287,12 +264,14 @@
   font-size: 14px;
   cursor: pointer;
   text-decoration: none;
+  border: none;
   transition: all 0.25s ease;
 }
 
 .nav-actions .btn-secondary {
   background: linear-gradient(135deg, #00838f, #005b60);
   color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 131, 143, 0.25);
 }
 
 .nav-actions .btn-secondary:hover {
@@ -304,6 +283,7 @@
 .nav-actions .btn-primary {
   background: linear-gradient(135deg, #2e7d32, #1b5e20);
   color: #ffffff;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.25);
 }
 
 .nav-actions .btn-primary:hover {
@@ -312,31 +292,15 @@
   background: linear-gradient(135deg, #388e3c, #2e7d32);
 }
 
-/* ESTILOS PARA EL BOTÓN DE EXPORTAR */
 .nav-actions .btn-export {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 6px !important;
-  height: 44px !important; 
-  padding: 0 16px !important;
-  white-space: nowrap !important; 
-  flex-shrink: 0 !important; 
-  box-sizing: border-box !important;
-  border-radius: 12px;
-  font-weight: 700;
-  font-size: 14px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 0.25s ease;
   background: linear-gradient(135deg, #475569, #334155);
   color: #ffffff;
-  border: none;
+  box-shadow: 0 4px 12px rgba(51, 65, 85, 0.25);
 }
 
 .nav-actions .btn-export:hover:not(:disabled) {
-  transform: translateY(-2px); 
-  box-shadow: 0 6px 16px rgba(51, 65, 85, 0.35); 
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(51, 65, 85, 0.35);
   background: linear-gradient(135deg, #64748b, #475569);
 }
 
@@ -345,7 +309,268 @@
   cursor: not-allowed;
 }
 
-/* MEDIA QUERIES PARA CELULARES */
+/* ==========================================
+   MODAL DE REGISTRO
+   ========================================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  background: #ffffff;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 480px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: slideUp 0.3s ease-out forwards;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #f8fafc;
+  border-radius: 20px 20px 0 0;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #94a3b8;
+  transition: 0.2s;
+}
+
+.close-btn:hover {
+  color: #0f172a;
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.form-group.half {
+  flex: 1;
+}
+
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 8px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+  color: #0f172a;
+  transition: all 0.2s ease;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #00838f;
+  box-shadow: 0 0 0 3px rgba(0, 131, 143, 0.15);
+}
+
+/* ==========================================
+   FOOTER Y BOTONES DEL MODAL
+   ========================================== */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px;
+  border-top: 1px solid #f1f5f9;
+  background: #f8fafc;
+  border-radius: 0 0 20px 20px;
+}
+
+.modal-footer .btn-cancel {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  padding: 0 20px;
+  height: 44px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-footer .btn-cancel:hover:not(:disabled) {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.modal-footer .btn-primary {
+  background: linear-gradient(135deg, #2e7d32, #1b5e20);
+  color: #ffffff;
+  border: none;
+  padding: 0 20px;
+  height: 44px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-footer .btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(46, 125, 50, 0.35);
+  background: linear-gradient(135deg, #388e3c, #2e7d32);
+}
+
+.modal-footer .btn-primary:disabled,
+.modal-footer .btn-cancel:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.btn-baja {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-baja:hover {
+  background: #dc2626;
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+/* ==========================================
+   MODAL DE CONFIRMACIÓN DE BAJA
+   ========================================== */
+.modal-confirm {
+  max-width: 420px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.warning-icon {
+  width: 56px;
+  height: 56px;
+  background: #fee2e2;
+  color: #dc2626;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  margin-bottom: 16px;
+}
+
+.modal-confirm h3 {
+  margin: 0 0 10px 0;
+  color: #0f172a;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.confirm-text {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.confirm-text strong {
+  color: #0f172a;
+}
+
+.modal-footer .btn-danger {
+  background: linear-gradient(135deg, #dc2626, #991b1b);
+  color: #ffffff;
+  border: none;
+  padding: 0 20px;
+  height: 44px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-footer .btn-danger:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.35);
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+}
+
+.modal-footer .btn-danger:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ==========================================
+   MEDIA QUERIES PARA CELULARES
+   ========================================== */
 @media (max-width: 600px) {
   .top-nav {
     flex-direction: column;
@@ -381,5 +606,18 @@
     border-radius: 12px;
     width: 100%;
     box-sizing: border-box;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .modal-footer {
+    flex-direction: column-reverse;
+  }
+
+  .modal-footer button {
+    width: 100%;
   }
 }
