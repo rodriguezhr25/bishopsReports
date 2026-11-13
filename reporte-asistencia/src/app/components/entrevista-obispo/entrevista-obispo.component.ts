@@ -16,6 +16,12 @@ export class EntrevistaObispoComponent implements OnInit {
   mesActual = new Date().getMonth() + 1;
   anioActual = new Date().getFullYear();
 
+  // Variables para el Modal de Notificación
+  mostrarModalMensaje: boolean = false;
+  modalTipo: 'exito' | 'error' = 'exito';
+  modalTitulo: string = '';
+  modalMensaje: string = '';
+
   meses = [
     { num: 1, nombre: 'Ene' }, { num: 2, nombre: 'Feb' }, { num: 3, nombre: 'Mar' },
     { num: 4, nombre: 'Abr' }, { num: 5, nombre: 'May' }, { num: 6, nombre: 'Jun' },
@@ -142,23 +148,46 @@ export class EntrevistaObispoComponent implements OnInit {
     }
   }
 
-  async guardarCambios() {
+  cerrarModalMensaje() {
+    this.mostrarModalMensaje = false;
+  }
+
+async guardarCambios() {
     this.guardando = true;
     try {
-      // Convertir el diccionario a un arreglo y asignar el nombre del obispo actualizado a todos
       const registros = this.meses.map(m => {
         const reg = this.matriz[m.num];
-        reg.nombre_obispo = this.nombreObispo;
-        // Limpiar propiedades auto calculadas antes de enviar a DB
-        const { rs_asistencia_auto, conv_seguimiento_pct_auto, ...dbRecord } = reg;
+        const { rs_asistencia_auto, conv_seguimiento_pct_auto, id, ...resto } = reg;
+
+        // Construimos un objeto con estructura fija para que los 12 meses tengan las mismas llaves
+        const dbRecord: any = {
+          ...resto,
+          unidad_id: Number(reg.unidad_id),
+          nombre_obispo: this.nombreObispo,
+          conv_seguimiento_pct: reg.conv_seguimiento_pct ?? 0
+        };
+
+        // Solo incluimos 'id' si todos los registros ya existen en BD (edición);
+        // si es una unidad nueva, ninguno lleva 'id' y todas las llaves coinciden.
+        if (id) {
+          dbRecord.id = id;
+        }
+
         return dbRecord;
       });
 
       await this.entrevistaService.guardarMatriz(registros);
-      alert('Reporte guardado correctamente.');
+
+      this.modalTipo = 'exito';
+      this.modalTitulo = '¡Reporte Guardado!';
+      this.modalMensaje = 'Los datos de liderazgo del obispo se han actualizado correctamente.';
+      this.mostrarModalMensaje = true;
     } catch (e) {
       console.error('Error al guardar', e);
-      alert('Error al guardar el reporte.');
+      this.modalTipo = 'error';
+      this.modalTitulo = 'Error al Guardar';
+      this.modalMensaje = 'Ocurrió un problema al guardar el reporte. Verifica tu conexión e intenta nuevamente.';
+      this.mostrarModalMensaje = true;
     } finally {
       this.guardando = false;
     }

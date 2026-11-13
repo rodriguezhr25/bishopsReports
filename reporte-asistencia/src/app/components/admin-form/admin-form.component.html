@@ -13,18 +13,8 @@
           <input type="date" formControlName="fecha">
         </div>
 
-        <div class="form-field checkbox-field">
-          <label>¿Registra Asistencia Esta Semana?</label>
-          <div class="active-toggle">
-            <input type="checkbox" formControlName="es_semana_activa" id="semanaActivaCheck">
-            <label for="semanaActivaCheck">
-              {{ form.get('es_semana_activa')?.value ? 'Semana Activa' : 'Sin Registro / En Blanco (0)' }}
-            </label>
-          </div>
-        </div>
-
         <div class="form-field">
-          <label>Asistencia Hoy (Total)</label>
+          <label>Asistencia Hoy</label>
           <input type="number" formControlName="asistencia_total" readonly class="readonly-input">
         </div>
 
@@ -41,6 +31,16 @@
         <div class="form-field">
           <label>Diferencia</label>
           <input type="number" formControlName="diferencia" readonly class="readonly-input">
+        </div>
+        
+        <div class="form-field checkbox-field">
+          <label>¿Registra Asistencia Esta Semana?</label>
+          <div class="active-toggle">
+            <input type="checkbox" formControlName="es_semana_activa" id="semanaActivaCheck">
+            <label for="semanaActivaCheck">
+              {{ form.get('es_semana_activa')?.value ? 'Semana Activa' : 'Sin Registro / En Blanco (0)' }}
+            </label>
+          </div>
         </div>
       </div>
     </div>

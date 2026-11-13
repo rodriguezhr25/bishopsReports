@@ -131,3 +131,22 @@
     </table>
   </div>
 </div>
+
+<!-- MODAL DE NOTIFICACIÓN (ÉXITO / ERROR) -->
+<div class="modal-overlay" *ngIf="mostrarModalMensaje" (click)="cerrarModalMensaje()">
+  <div class="modal-content modal-alert" (click)="$event.stopPropagation()">
+    <div class="modal-body text-center">
+      <div class="alert-icon" [class.icon-success]="modalTipo === 'exito'" [class.icon-error]="modalTipo === 'error'">
+        {{ modalTipo === 'exito' ? '✔' : '✖' }}
+      </div>
+      <h3>{{ modalTitulo }}</h3>
+      <p class="alert-text">{{ modalMensaje }}</p>
+    </div>
+
+    <div class="modal-footer-center">
+      <button class="btn-modal-ok" [class.btn-ok-error]="modalTipo === 'error'" (click)="cerrarModalMensaje()">
+        Entendido
+      </button>
+    </div>
+  </div>
+</div>

@@ -54,13 +54,13 @@ export class EntrevistaReporteService {
   async guardarMatriz(registros: any[]) {
     // Filtrar solo los meses que tienen nombre_obispo definido o algún dato modificado
     const registrosAInsertar = registros.filter(r => r.nombre_obispo);
-    
+
     if (registrosAInsertar.length === 0) return;
 
     const { error } = await this.supabase
       .from('seguimiento_obispos')
       .upsert(registrosAInsertar, { onConflict: 'unidad_id,anio,mes' });
-    
+
     if (error) throw error;
   }
 
@@ -73,5 +73,19 @@ export class EntrevistaReporteService {
       .eq('activo', true); // Solo miembros activos
     if (error) throw error;
     return data;
+  }
+
+  async getMatrizAnualEstaca(anio: number): Promise<any[]> {
+    const { data, error } = await this.supabase
+      .from('seguimiento_obispos')
+      .select('unidad_id, mes, sem_inscritos, sem_asistencia, inst_inscritos, inst_asistencia, pm_inscritos, pm_asistencia')
+      .eq('anio', anio)
+      .order('mes', { ascending: true });
+
+    if (error) {
+      console.error('Error al obtener matriz anual de la estaca:', error);
+      return [];
+    }
+    return data || [];
   }
 }

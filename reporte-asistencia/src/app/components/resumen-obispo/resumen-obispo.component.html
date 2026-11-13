@@ -48,15 +48,63 @@
     </div>
 
     <div class="dashboard-grid">
-      <!-- GRAFICA SACRAMENTAL -->
-      <div class="dashboard-card chart-card">
-        <h3>1. Tendencia de Reunión Sacramental</h3>
-        <div class="chart-container">
-          <canvas #asistenciaCanvas></canvas>
+      <!-- COLUMNA IZQUIERDA: GRÁFICAS Y CONSOLIDADO ESTACA -->
+      <div class="charts-column">
+        <div class="dashboard-card chart-card">
+          <h3>1. Tendencia de Reunión Sacramental</h3>
+          <div class="chart-container">
+            <canvas #asistenciaCanvas></canvas>
+          </div>
+        </div>
+
+        <!-- SELECTOR DE PROGRAMA (SEMINARIO / INSTITUTO / P.M.) -->
+        <div class="program-tabs">
+          <button type="button" [class.active]="programaSeleccionado === 'seminario'" (click)="cambiarPrograma('seminario')">
+            Seminario
+          </button>
+          <button type="button" [class.active]="programaSeleccionado === 'instituto'" (click)="cambiarPrograma('instituto')">
+            Instituto
+          </button>
+          <button type="button" [class.active]="programaSeleccionado === 'pm'" (click)="cambiarPrograma('pm')">
+            Prep. Misional
+          </button>
+        </div>
+
+        <!-- GRÁFICA MENSUAL DEL PROGRAMA SELECCIONADO -->
+        <div class="dashboard-card chart-card">
+          <h3>Tendencia Mensual: {{ consolidadoEstacaProgramas[programaSeleccionado].titulo }} (Inscritos vs. Asistiendo)</h3>
+          <div class="chart-container">
+            <canvas #programaCanvas></canvas>
+          </div>
+        </div>
+
+        <!-- RESUMEN CONSOLIDADO ESTACA DEL PROGRAMA SELECCIONADO -->
+        <div class="dashboard-card" *ngIf="consolidadoEstacaProgramas[programaSeleccionado] as resumenEstaca">
+          <div class="estaca-sem-header">
+            <h3>Consolidado {{ resumenEstaca.titulo }} — Estaca ({{ anioSeleccionado }})</h3>
+            <span class="pct-pill"
+              [class.pill-good]="resumenEstaca.porcentaje >= 75"
+              [class.pill-mid]="resumenEstaca.porcentaje >= 50 && resumenEstaca.porcentaje < 75"
+              [class.pill-low]="resumenEstaca.porcentaje < 50">
+              {{ resumenEstaca.asistencia }} / {{ resumenEstaca.inscritos }} ({{ resumenEstaca.porcentaje }}%)
+            </span>
+          </div>
+
+          <div class="estaca-units-list">
+            <div class="unit-sem-row" *ngFor="let item of resumenEstaca.detalleUnidades">
+              <span class="unit-sem-name">{{ item.nombre }}</span>
+              <div class="unit-sem-metrics">
+                <span>{{ item.asistencia }} / {{ item.inscritos }}</span>
+                <strong [class.val-positive]="item.porcentaje >= 75" [class.val-negative]="item.porcentaje < 50">
+                  {{ item.porcentaje }}%
+                </strong>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     
-     <!-- TARJETAS ACUMULADAS -->
+      <!-- COLUMNA DERECHA: TARJETAS -->
       <div class="cards-grid">
         
         <div class="dashboard-card min-card">
@@ -71,20 +119,29 @@
           </div>
         </div>
 
-        <!-- NUEVA TARJETA ITEM 3 -->
+        <!-- TARJETA ITEM 3 (ESTADO ACTUAL + % EN LOS 3 PROGRAMAS) -->
         <div class="dashboard-card min-card">
-          <h3>3. Seminario, Instituto y P.M. (YTD)</h3>
+          <h3>3. Seminario, Instituto y P.M. (Actual)</h3>
           <div class="stat-row">
             <span>Seminario (Insc / Asis):</span>
-            <strong>{{ totalSemInscritos }} / {{ totalSemAsistencia }}</strong>
+            <strong>
+              {{ totalSemInscritos }} / {{ totalSemAsistencia }}
+              <small class="inline-pct">({{ porcentajeSeminarioUnidad }}%)</small>
+            </strong>
           </div>
           <div class="stat-row">
             <span>Instituto (Insc / Asis):</span>
-            <strong>{{ totalInstInscritos }} / {{ totalInstAsistencia }}</strong>
+            <strong>
+              {{ totalInstInscritos }} / {{ totalInstAsistencia }}
+              <small class="inline-pct">({{ porcentajeInstitutoUnidad }}%)</small>
+            </strong>
           </div>
           <div class="stat-row">
             <span>Prep. Misional (Insc / Asis):</span>
-            <strong>{{ totalPmInscritos }} / {{ totalPmAsistencia }}</strong>
+            <strong>
+              {{ totalPmInscritos }} / {{ totalPmAsistencia }}
+              <small class="inline-pct">({{ porcentajePmUnidad }}%)</small>
+            </strong>
           </div>
         </div>
 
