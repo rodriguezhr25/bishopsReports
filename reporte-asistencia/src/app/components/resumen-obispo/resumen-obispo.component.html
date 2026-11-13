@@ -1,0 +1,118 @@
+<div class="dashboard-container">
+  
+  <div class="header-section">
+    <div class="header-title-row">
+      <h2>Resumen de Liderazgo del Obispo</h2>
+      <div class="nav-actions">
+        <a routerLink="/entrevista-obispo" class="btn-primary">Editar Matriz</a>
+        <a routerLink="/dashboard" class="btn-secondary">&larr; Volver</a>
+      </div>
+    </div>
+    
+    <div class="filters-row">
+      <div class="form-group">
+        <label>Barrio / Rama:</label>
+        <select [(ngModel)]="unidadSeleccionada" (change)="cargarResumen()">
+          <option *ngFor="let u of unidades" [value]="u.id">{{ u.nombre }}</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Año:</label>
+        <input type="number" [(ngModel)]="anioSeleccionado" (change)="cargarResumen()">
+      </div>
+      <div class="form-info" *ngIf="nombreObispo">
+        <label>Obispo Actual:</label>
+        <div class="obispo-name">{{ nombreObispo }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!cargando" class="summary-content">
+    
+    <!-- TOP KPIs -->
+    <div class="top-stats">
+      <div class="stat-box">
+        <h4>Promedio Asistencia Gral. (YTD)</h4>
+        <div class="num">{{ promedioAsistenciaGeneral }}</div>
+      </div>
+      <div class="stat-box">
+        <h4>Promedio Asistencia Jóvenes (YTD)</h4>
+        <div class="num" style="color: #f59e0b;">{{ promedioAsistenciaJovenes }}</div>
+      </div>
+      <div class="stat-box">
+        <h4>Retención de Conversos (Actual)</h4>
+        <div class="num" [class.val-positive]="retencionActualConversos >= 50" [class.val-negative]="retencionActualConversos < 50">
+          {{ retencionActualConversos }}%
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <!-- GRAFICA SACRAMENTAL -->
+      <div class="dashboard-card chart-card">
+        <h3>1. Tendencia de Reunión Sacramental</h3>
+        <div class="chart-container">
+          <canvas #asistenciaCanvas></canvas>
+        </div>
+      </div>
+    
+     <!-- TARJETAS ACUMULADAS -->
+      <div class="cards-grid">
+        
+        <div class="dashboard-card min-card">
+          <h3>2. Consejos (YTD)</h3>
+          <div class="stat-row">
+            <span>Consejos de Barrio:</span>
+            <strong>{{ totalConsejosBarrio }}</strong>
+          </div>
+          <div class="stat-row">
+            <span>Consejos de Juventud:</span>
+            <strong>{{ totalConsejosJuventud }}</strong>
+          </div>
+        </div>
+
+        <!-- NUEVA TARJETA ITEM 3 -->
+        <div class="dashboard-card min-card">
+          <h3>3. Seminario, Instituto y P.M. (YTD)</h3>
+          <div class="stat-row">
+            <span>Seminario (Insc / Asis):</span>
+            <strong>{{ totalSemInscritos }} / {{ totalSemAsistencia }}</strong>
+          </div>
+          <div class="stat-row">
+            <span>Instituto (Insc / Asis):</span>
+            <strong>{{ totalInstInscritos }} / {{ totalInstAsistencia }}</strong>
+          </div>
+          <div class="stat-row">
+            <span>Prep. Misional (Insc / Asis):</span>
+            <strong>{{ totalPmInscritos }} / {{ totalPmAsistencia }}</strong>
+          </div>
+        </div>
+
+        <div class="dashboard-card min-card">
+          <h3>4. Obra Misional (YTD)</h3>
+          <div class="stat-row">
+            <span>Papeles Enviados:</span>
+            <strong>{{ totalPapelesMisionales }}</strong>
+          </div>
+          <div class="stat-row">
+            <span>Jóvenes Entrevistados:</span>
+            <strong>{{ totalJovenesEntrevistados }}</strong>
+          </div>
+        </div>
+
+        <div class="dashboard-card min-card">
+          <h3>6 & 7. Ministración (YTD)</h3>
+          <div class="stat-row">
+            <span>Jóvenes Ministrados/Entr.:</span>
+            <strong>{{ totalMinJovenes }}</strong>
+          </div>
+          <div class="stat-row">
+            <span>Entr. Melquisedec:</span>
+            <strong>{{ totalMelquisedec }}</strong>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

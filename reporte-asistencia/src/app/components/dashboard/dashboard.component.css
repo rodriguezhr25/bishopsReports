@@ -89,30 +89,28 @@
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 6px !important;
   height: 44px !important;
-  padding: 0 14px !important;
+  padding: 0 16px !important;
   white-space: nowrap !important;
   flex-shrink: 0 !important;
   box-sizing: border-box !important;
-  border-radius: 12px;
-  font-weight: 700;
+  border-radius: 8px;
+  font-weight: 600;
   font-size: 14px;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: background-color 0.2s ease, transform 0.1s ease;
   text-decoration: none;
-}
-
-.btn-export {
-  background: linear-gradient(135deg, #475569, #334155);
-  color: #ffffff;
   border: none;
 }
 
+.btn-export {
+  background-color: #475569; /* Gris oscuro */
+  color: #ffffff;
+}
+
 .btn-export:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(51, 65, 85, 0.35);
-  background: linear-gradient(135deg, #64748b, #475569);
+  background-color: #334155;
+  transform: translateY(-1px);
 }
 
 .btn-export:disabled {
@@ -121,37 +119,34 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #2e7d32, #1b5e20);
+  background-color: #00838f; /* Cyan principal */
   color: #ffffff;
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(46, 125, 50, 0.35);
-  background: linear-gradient(135deg, #388e3c, #2e7d32);
+  background-color: #006064;
+  transform: translateY(-1px);
 }
 
 .btn-secondary {
-  background: linear-gradient(135deg, #00838f, #005b60);
-  color: #ffffff;
+  background-color: #e2e8f0; /* Gris claro para secundario */
+  color: #334155;
 }
 
 .btn-secondary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 131, 143, 0.35);
-  background: linear-gradient(135deg, #0097a7, #00695c);
+  background-color: #cbd5e1;
+  transform: translateY(-1px);
 }
 
 .btn-logout {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: #ffffff;
-  border: none;
+  background-color: #fee2e2; /* Rojo claro */
+  color: #dc2626;
+  border: 1px solid #fecaca;
 }
 
 .btn-logout:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.35);
-  background: linear-gradient(135deg, #f87171, #ef4444);
+  background-color: #fecaca;
+  transform: translateY(-1px);
 }
 
 /* TARJETAS Y ESTADÍSTICAS */

@@ -9,7 +9,8 @@ import {
   AsistenciaSemanalBarrio,
   ResumenBarrioTrimestral,
   getRangoTrimestre,
-  UnidadEstaca
+  UnidadEstaca,
+  EstacaConfig
 } from '../models/asistencia.model';
 import { BehaviorSubject } from 'rxjs';
 
@@ -20,6 +21,7 @@ export class AsistenciaService {
   private supabase: SupabaseClient;
   // Bóveda en memoria que Angular nunca olvidará al navegar
   private currentUser = new BehaviorSubject<any>(null);
+  private estacaConfigCache: EstacaConfig | null = null;
 
   constructor() {
     this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
@@ -268,7 +270,7 @@ export class AsistenciaService {
     if (error) throw error;
     return (data || []).map((item: any) => item.fecha);
   }
- 
+
 
   async getPromedioTrimestreActual(fechaSeleccionada: string): Promise<{ promedioTotal: number, totalSemanasActivas: number }> {
     const { inicio, fin } = getRangoTrimestre(fechaSeleccionada);
@@ -288,5 +290,27 @@ export class AsistenciaService {
     const promedioTotal = Math.round(sumaTotales / data.length);
 
     return { promedioTotal, totalSemanasActivas: data.length };
+  }
+  // Importa EstacaConfig en la cabecera de asistencia.service.ts
+
+
+  async getEstacaConfig(): Promise<EstacaConfig> {
+    if (this.estacaConfigCache) {
+      return this.estacaConfigCache;
+    }
+
+    const { data, error } = await this.supabase
+      .from('estaca_config')
+      .select('*')
+      .eq('id', 1)
+      .single();
+
+    if (error || !data) {
+      // Respaldo seguro en caso de falla de red
+      return { id: 1, nombre_estaca: 'Estaca El Tigre', subtitulo: 'El Tigre' };
+    }
+
+    this.estacaConfigCache = data as EstacaConfig;
+    return this.estacaConfigCache;
   }
 }

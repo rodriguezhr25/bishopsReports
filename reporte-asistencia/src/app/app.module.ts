@@ -10,6 +10,8 @@ import { DashboardTrimestralComponent } from './components/dashboard-trimestral/
 import { LoginComponent } from './components/login/login.component'; // 👈 Importar
 import { SeguimientoComponent } from './components/seguimiento/seguimiento.component';
 import { DashboardSeguimientoComponent } from './components/dashboard-seguimiento/dashboard-seguimiento.component';
+import { EntrevistaObispoComponent } from './components/entrevista-obispo/entrevista-obispo.component';
+import { ResumenObispoComponent } from './components/resumen-obispo/resumen-obispo.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +21,9 @@ import { DashboardSeguimientoComponent } from './components/dashboard-seguimient
     DashboardTrimestralComponent,
     LoginComponent,
     SeguimientoComponent,
-    DashboardSeguimientoComponent
+    DashboardSeguimientoComponent,
+    EntrevistaObispoComponent,
+    ResumenObispoComponent
   ],
   imports: [
     BrowserModule,

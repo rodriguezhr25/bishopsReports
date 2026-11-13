@@ -17,10 +17,14 @@ export class DashboardComponent implements OnInit {
   exportando: boolean = false;
   promedioTrimestral: number = 0;
   semanasContabilizadas: number = 0;
+  nombreEstacaSubtitulo: string = '';
 
-  constructor(private asistenciaService: AsistenciaService, private router: Router) {}
+  constructor(private asistenciaService: AsistenciaService, private router: Router) { }
 
   async ngOnInit() {
+    const config = await this.asistenciaService.getEstacaConfig();
+    this.nombreEstacaSubtitulo = config.subtitulo;
+
     await this.cargarFechas();
     await this.cargarDatos();
   }

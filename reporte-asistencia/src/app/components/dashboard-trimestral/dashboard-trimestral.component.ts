@@ -22,6 +22,7 @@ export class DashboardTrimestralComponent implements OnInit {
   trimestreSeleccionado: number = 4;
   cargando: boolean = true;
   exportando: boolean = false;
+  nombreEstaca: string = '';
 
   aniosDisponibles: number[] = [2025, 2026, 2027];
   trimestres = [
@@ -53,9 +54,12 @@ export class DashboardTrimestralComponent implements OnInit {
     }
   }
 
-  async ngOnInit() {
-    await this.cargarReporteTrimestral();
-  }
+ async ngOnInit() {
+  const config = await this.asistenciaService.getEstacaConfig();
+  this.nombreEstaca = config.nombre_estaca;
+
+  await this.cargarReporteTrimestral();
+}
 
   async cargarReporteTrimestral() {
     this.cargando = true;

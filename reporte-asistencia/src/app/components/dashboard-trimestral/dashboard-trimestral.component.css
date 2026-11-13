@@ -66,34 +66,57 @@
   flex-wrap: wrap;
 }
 
-.btn-export, .btn-secondary, .btn-logout {
+.btn-export, 
+.btn-secondary, 
+.btn-logout {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 6px !important;
   height: 44px !important; 
-  padding: 0 14px !important;
+  padding: 0 16px !important;
   white-space: nowrap !important; 
   flex-shrink: 0 !important; 
   box-sizing: border-box !important;
-  border-radius: 12px;
-  font-weight: 700;
+  border-radius: 8px;
+  font-weight: 600;
   font-size: 14px;
   cursor: pointer;
   text-decoration: none;
-  transition: all 0.25s ease;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  border: none;
 }
 
-.btn-export { background: linear-gradient(135deg, #475569, #334155); color: #ffffff; border: none; }
-.btn-export:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(51, 65, 85, 0.35); background: linear-gradient(135deg, #64748b, #475569); }
-.btn-export:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-export { 
+  background-color: #475569; 
+  color: #ffffff; 
+}
+.btn-export:hover:not(:disabled) { 
+  background-color: #334155; 
+  transform: translateY(-1px); 
+}
+.btn-export:disabled { 
+  opacity: 0.6; 
+  cursor: not-allowed; 
+}
 
-.btn-secondary { background: linear-gradient(135deg, #00838f, #005b60); color: #ffffff; }
-.btn-secondary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0, 131, 143, 0.35); background: linear-gradient(135deg, #0097a7, #00695c); }
+.btn-secondary { 
+  background-color: #00838f; 
+  color: #ffffff; 
+}
+.btn-secondary:hover { 
+  background-color: #006064; 
+  transform: translateY(-1px); 
+}
 
-.btn-logout { background: linear-gradient(135deg, #ef4444, #dc2626); color: #ffffff; border: none; }
-.btn-logout:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(220, 38, 38, 0.35); background: linear-gradient(135deg, #f87171, #ef4444); }
-
+.btn-logout { 
+  background-color: #fee2e2; 
+  color: #dc2626; 
+  border: 1px solid #fecaca; 
+}
+.btn-logout:hover { 
+  background-color: #fecaca; 
+  transform: translateY(-1px); 
+}
 /* ESTILOS GENERALES Y TARJETAS */
 .empty-card {
   max-width: 1150px;

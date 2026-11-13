@@ -2,6 +2,11 @@ export interface UnidadEstaca {
   id: number;
   nombre: string;
 }
+export interface EstacaConfig {
+  id: number;
+  nombre_estaca: string;
+  subtitulo: string;
+}
 
 export interface DetalleBarrio {
   id?: string;

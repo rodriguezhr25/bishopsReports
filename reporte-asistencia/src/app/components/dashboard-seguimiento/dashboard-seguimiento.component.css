@@ -44,45 +44,53 @@
 }
 
 .btn-export,
-.btn-primary {
+.btn-primary,
+.btn-secondary {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 6px !important;
   height: 44px !important;
   padding: 0 16px !important;
   white-space: nowrap !important;
   flex-shrink: 0 !important;
   box-sizing: border-box !important;
-  border-radius: 12px;
-  font-weight: 700;
+  border-radius: 8px;
+  font-weight: 600;
   font-size: 14px;
   cursor: pointer;
   text-decoration: none;
-  transition: all 0.25s ease;
-}
-
-.btn-export {
-  background: linear-gradient(135deg, #475569, #334155);
-  color: #ffffff;
+  transition: background-color 0.2s ease, transform 0.1s ease;
   border: none;
 }
 
+.btn-export {
+  background-color: #475569;
+  color: #ffffff;
+}
+
 .btn-export:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(51, 65, 85, 0.35);
-  background: linear-gradient(135deg, #64748b, #475569);
+  background-color: #334155;
+  transform: translateY(-1px);
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #2e7d32, #1b5e20);
+  background-color: #00838f; /* Unificado con el dashboard principal */
   color: #ffffff;
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(46, 125, 50, 0.35);
-  background: linear-gradient(135deg, #388e3c, #2e7d32);
+  background-color: #006064;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: #e2e8f0;
+  color: #334155;
+}
+
+.btn-secondary:hover {
+  background-color: #cbd5e1;
+  transform: translateY(-1px);
 }
 
 .empty-card {

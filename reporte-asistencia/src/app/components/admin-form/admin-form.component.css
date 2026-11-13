@@ -157,21 +157,20 @@
 }
 
 .btn-save {
-  background: linear-gradient(135deg, #16a34a, #15803d);
+  background-color: #00838f; /* Unificado con los demás botones de acción principal */
   color: #ffffff;
   border: none;
-  padding: 12px 28px;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 700;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .btn-save:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(22, 163, 74, 0.35);
+  background-color: #006064;
+  transform: translateY(-1px);
 }
 
 .btn-save:disabled {
@@ -180,16 +179,21 @@
 }
 
 .btn-cancel {
-  background: #64748b;
-  color: #ffffff;
-  padding: 12px 24px;
-  border-radius: 12px;
+  background-color: #e2e8f0;
+  color: #334155;
+  padding: 10px 24px;
+  border-radius: 8px;
   text-decoration: none;
-  font-size: 15px;
-  font-weight: 700;
-  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .btn-cancel:hover {
-  background: #475569;
+  background-color: #cbd5e1;
+  transform: translateY(-1px);
 }

@@ -1,0 +1,133 @@
+<div class="dashboard-container">
+  <div class="header-section">
+   <div class="header-title-row">
+      <h2>Seguimiento de Liderazgo del Obispo</h2>
+      <a routerLink="/resumen-obispo" class="btn-secondary">
+        &larr; Volver al resumen
+      </a>
+    </div>
+    
+    <div class="filters-row">
+      <div class="form-group">
+        <label>Barrio / Rama:</label>
+        <select [(ngModel)]="unidadSeleccionada" (change)="cargarMatriz()">
+          <option *ngFor="let u of unidades" [value]="u.id">{{ u.nombre }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Año:</label>
+        <input type="number" [(ngModel)]="anioSeleccionado" (change)="cargarMatriz()">
+      </div>
+
+      <div class="form-group">
+        <label>Nombre del Obispo:</label>
+        <input type="text" [(ngModel)]="nombreObispo" placeholder="Ej. Obispo Pérez">
+      </div>
+
+      <button class="btn-save" (click)="guardarCambios()" [disabled]="cargando || guardando">
+        {{ guardando ? 'Guardando...' : 'Guardar Reporte' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="matrix-container" *ngIf="!cargando">
+    <table class="matrix-table">
+      <thead>
+        <tr>
+          <th class="sticky-col">Indicadores de Evaluación</th>
+          <th *ngFor="let m of meses">{{ m.nombre }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Item 1 -->
+        <tr class="section-title"><td colspan="13">1. Reunión Sacramental</td></tr>
+        <tr>
+          <td class="sticky-col label-auto">Asistencia Gral. (Auto)</td>
+          <td *ngFor="let m of meses"><input type="number" readonly [value]="matriz[m.num].rs_asistencia_auto" class="input-auto"></td>
+        </tr>
+        <tr>
+          <td class="sticky-col">Asistencia de Jóvenes</td>
+          <td *ngFor="let m of meses"><input type="number" [(ngModel)]="matriz[m.num].rs_jovenes_asistencia"></td>
+        </tr>
+
+        <!-- Item 2 -->
+        <tr class="section-title"><td colspan="13">2. Consejos de Barrio</td></tr>
+        <tr>
+          <td class="sticky-col">Consejos Generales</td>
+          <td *ngFor="let m of meses"><input type="number" [(ngModel)]="matriz[m.num].consejos_barrio"></td>
+        </tr>
+        <tr>
+          <td class="sticky-col">Consejos de Juventud</td>
+          <td *ngFor="let m of meses"><input type="number" [(ngModel)]="matriz[m.num].consejos_juventud"></td>
+        </tr>
+
+        <!-- Item 3 -->
+       <!-- Item 3 -->
+        <tr class="section-title"><td colspan="13">3. Seminario, Instituto y Prep. Misional</td></tr>
+        
+        <tr>
+          <td class="sticky-col">Seminario (Insc/Asis)</td>
+          <td *ngFor="let m of meses">
+            <div class="split-cell">
+              <input type="number" [(ngModel)]="matriz[m.num].sem_inscritos" placeholder="I">
+              <input type="number" [(ngModel)]="matriz[m.num].sem_asistencia" placeholder="A">
+            </div>
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="sticky-col">Instituto (Insc/Asis)</td>
+          <td *ngFor="let m of meses">
+            <div class="split-cell">
+              <input type="number" [(ngModel)]="matriz[m.num].inst_inscritos" placeholder="I">
+              <input type="number" [(ngModel)]="matriz[m.num].inst_asistencia" placeholder="A">
+            </div>
+          </td>
+        </tr>
+        
+        <tr>
+          <td class="sticky-col">Prep. Misional (Insc/Asis)</td>
+          <td *ngFor="let m of meses">
+            <div class="split-cell">
+              <input type="number" [(ngModel)]="matriz[m.num].pm_inscritos" placeholder="I">
+              <input type="number" [(ngModel)]="matriz[m.num].pm_asistencia" placeholder="A">
+            </div>
+          </td>
+        </tr>
+
+        <!-- Item 4 -->
+        <tr class="section-title"><td colspan="13">4. Jóvenes al Campo Misional</td></tr>
+        <tr>
+          <td class="sticky-col">Papeles Enviados</td>
+          <td *ngFor="let m of meses"><input type="number" [(ngModel)]="matriz[m.num].misional_papeles"></td>
+        </tr>
+        <tr>
+          <td class="sticky-col">Jóvenes Entrevistados</td>
+          <td *ngFor="let m of meses"><input type="number" [(ngModel)]="matriz[m.num].misional_entrevistas"></td>
+        </tr>
+
+       <!-- Item 5 -->
+        <tr class="section-title"><td colspan="13">5. Conversos Recientes</td></tr>
+        <tr>
+          <td class="sticky-col">% Seguimiento Activo</td>
+          <td *ngFor="let m of meses">
+            <input type="number" 
+                   [(ngModel)]="matriz[m.num].conv_seguimiento_pct"
+                   [class.input-active-month]="m.num === mesActual && anioSeleccionado === anioActual">
+          </td>
+        </tr>
+        <!-- Item 6 & 7 -->
+        <tr class="section-title"><td colspan="13">6. Ministración y Sacerdocio</td></tr>
+        <tr>
+          <td class="sticky-col">Jóvenes Ministrados</td>
+          <td *ngFor="let m of meses"><input type="number" [(ngModel)]="matriz[m.num].min_jovenes_entrevistados"></td>
+        </tr>
+        <tr>
+          <td class="sticky-col">Entrevistas Melquisedec</td>
+          <td *ngFor="let m of meses"><input type="number" [(ngModel)]="matriz[m.num].melquisedec_entrevistas"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

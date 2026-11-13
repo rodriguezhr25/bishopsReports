@@ -7,6 +7,8 @@ import { LoginComponent } from './components/login/login.component';
 import { AuthGuard } from './guards/auth.guard';
 import { SeguimientoComponent } from './components/seguimiento/seguimiento.component';
 import { DashboardSeguimientoComponent } from './components/dashboard-seguimiento/dashboard-seguimiento.component';
+import { EntrevistaObispoComponent } from './components/entrevista-obispo/entrevista-obispo.component';
+import { ResumenObispoComponent } from './components/resumen-obispo/resumen-obispo.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -15,6 +17,8 @@ const routes: Routes = [
   { path: 'admin', component: AdminFormComponent, canActivate: [AuthGuard] },
   { path: 'dashboard-seguimiento', component: DashboardSeguimientoComponent, canActivate: [AuthGuard] },
   { path: 'seguimiento', component: SeguimientoComponent, canActivate: [AuthGuard] },
+  { path: 'entrevista-obispo', component: EntrevistaObispoComponent, canActivate: [AuthGuard] },
+  { path: 'resumen-obispo', component: ResumenObispoComponent, canActivate: [AuthGuard] },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' }
 ];

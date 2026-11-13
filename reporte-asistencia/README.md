@@ -1,27 +1,35 @@
-# ReporteAsistencia
+# 📊 Sistema de Reportes y Asistencia para Estacas
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 10.2.4.
+Aplicación web moderna desarrollada en Angular y Supabase para llevar el control estadístico de asistencia semanal, análisis trimestral y seguimiento de conversos en las unidades (barrios/ramas) de una estaca.
 
-## Development server
+## 🚀 Guía de Instalación Rápida (Despliegue Independiente)
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+Sigue estos 3 pasos para tener tu propia instancia del sistema funcionando de forma 100% gratuita.
 
-## Code scaffolding
+### Paso 1: Configurar la Base de Datos (Supabase)
+1. Crea una cuenta gratuita en [Supabase](https://supabase.com) y haz clic en **"New Project"**.
+2. Ve al menú lateral izquierdo y selecciona el **SQL Editor**.
+3. Haz clic en **"New Query"**, copia todo el contenido del archivo `schema.sql` que está en este repositorio y pégalo allí.
+4. Presiona el botón verde **"RUN"**. Esto creará todas las tablas necesarias.
+5. *(Opcional)*: En Supabase, ve a la tabla `estaca_unidades` y edita los nombres de los barrios ("Barrio 1", "Barrio 2", etc.) por los nombres reales de las unidades de tu estaca.
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+### Paso 2: Crear el Usuario de Acceso (Login)
+1. En tu panel de Supabase, ve a **Authentication** -> **Users**.
+2. Haz clic en **Add User** -> **Create User**.
+3. Ingresa un correo y una contraseña segura, y marca la casilla **"Auto Confirm User"**. (Estas serán las credenciales para entrar al sistema).
 
-## Build
+### Paso 3: Desplegar la Aplicación (Vercel)
+1. Haz un Fork (o "Use this template") de este repositorio a tu propia cuenta de GitHub.
+2. Inicia sesión en [Vercel](https://vercel.com) con tu cuenta de GitHub.
+3. Haz clic en **"Add New Project"** e importa el repositorio que acabas de copiar.
+4. En la configuración del proyecto, busca la sección **Environment Variables** y añade las siguientes dos variables:
+   * **`SUPABASE_URL`**: *(Ve a Supabase -> Project Settings -> API y copia la "Project URL")*
+   * **`SUPABASE_KEY`**: *(En la misma pantalla, copia la clave "anon public")*
+5. Haz clic en **Deploy**. 
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+¡Listo! En un par de minutos, Vercel te entregará un enlace público (ej. `mi-estaca.vercel.app`). Ingresa con el correo y contraseña que creaste en el Paso 2 y comienza a utilizar el sistema.
 
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+## 🛠️ Stack Tecnológico
+* **Frontend:** Angular 12 (TypeScript, Chart.js, HTML2Canvas)
+* **Backend:** Supabase (PostgreSQL, Supabase Auth)
+* **Hosting:** Vercel
